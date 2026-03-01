@@ -1,0 +1,9 @@
+.DS_Store
+
+.build/
+.derivedData/
+*.xcuserstate
+xcuserdata/
+
+.simulator-check.png
+.simulator-check-2.png
