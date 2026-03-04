@@ -2,7 +2,7 @@ import Foundation
 
 struct FlashCard: Identifiable, Hashable, Codable {
     let id: String
-    let deck: DeckCategory
+    let deckID: String
     let title: String
     let prompt: String
     let answer: String

@@ -11,7 +11,7 @@ enum SeedDecks {
     ) -> FlashCard {
         FlashCard(
             id: id,
-            deck: deck,
+            deckID: deck.rawValue,
             title: title,
             prompt: prompt,
             answer: answer,
@@ -21,7 +21,8 @@ enum SeedDecks {
 
     static let all: [Deck] = [
         Deck(
-            id: .systemDesign,
+            id: DeckCategory.systemDesign.rawValue,
+            category: .systemDesign,
             title: "System Design",
             subtitle: "Scale systems with explicit tradeoffs",
             symbolName: "square.3.layers.3d.top.filled",
@@ -29,7 +30,8 @@ enum SeedDecks {
             cards: SystemDesignDeck.cards
         ),
         Deck(
-            id: .solutionArchitecture,
+            id: DeckCategory.solutionArchitecture.rawValue,
+            category: .solutionArchitecture,
             title: "Solution Architecture",
             subtitle: "Frame solutions from business need to delivery",
             symbolName: "point.3.connected.trianglepath.dotted",
@@ -37,7 +39,8 @@ enum SeedDecks {
             cards: SolutionArchitectureDeck.cards
         ),
         Deck(
-            id: .awsServices,
+            id: DeckCategory.awsServices.rawValue,
+            category: .awsServices,
             title: "AWS Services",
             subtitle: "Choose the right managed service quickly",
             symbolName: "cloud.fill",

@@ -1,0 +1,44 @@
+{
+  "cards" : [
+    {
+      "answer" : "A broker stores partitions, serves reads and writes, and participates in replication. Capacity, partition placement, and broker count drive throughput, fault isolation, and recovery speed.",
+      "id" : "kafka-broker",
+      "prompt" : "What is a Kafka broker and why does it matter in a production cluster?",
+      "tags" : [
+        "kafka",
+        "messaging",
+        "system-design"
+      ],
+      "title" : "Kafka Broker"
+    },
+    {
+      "answer" : "A partition is consumed by at most one consumer in a group, so adding consumers increases parallelism only up to the partition count. Too few partitions caps throughput; too many increases coordination and storage overhead.",
+      "id" : "consumer-groups",
+      "prompt" : "How do consumer groups scale reads and what tradeoff do they impose?",
+      "tags" : [
+        "kafka",
+        "scalability",
+        "tradeoffs"
+      ],
+      "title" : "Consumer Groups"
+    },
+    {
+      "answer" : "Use EOS when Kafka producers, brokers, and consumers all participate correctly in transactions. You still need idempotent downstream writes because external databases and side effects are outside Kafka's transaction boundary.",
+      "id" : "exactly-once",
+      "prompt" : "When should you trust Kafka exactly-once semantics and when is idempotency still required?",
+      "tags" : [
+        "kafka",
+        "reliability",
+        "idempotency"
+      ],
+      "title" : "Exactly-once Semantics"
+    }
+  ],
+  "category" : "system-design",
+  "id" : "custom-kafka-core",
+  "schemaVersion" : 1,
+  "subtitle" : "Build stronger event-streaming instincts",
+  "summary" : "A small sample deck that demonstrates the JSON format for importing or updating a deck.",
+  "symbolName" : "bolt.horizontal.circle.fill",
+  "title" : "Kafka Core"
+}

@@ -1,0 +1,410 @@
+{
+  "schemaVersion" : 1,
+  "id" : "custom-aws-overview-whitepaper",
+  "category" : "aws-services",
+  "title" : "AWS Overview Whitepaper",
+  "subtitle" : "Curated AWS service selection deck",
+  "symbolName" : "cloud.fill",
+  "summary" : "A practical AWS study deck distilled from the official AWS Overview whitepaper, focused on service purpose, when to use it, and key comparisons.",
+  "cards" : [
+    {
+      "id" : "whitepaper-aws-compute-selection",
+      "title" : "Choosing an AWS Compute Service",
+      "prompt" : "How do you frame the choice among EC2, Lambda, containers, and higher-level AWS compute services?",
+      "answer" : "Start with how much infrastructure control you need. Use EC2 when you need VM-level control, Lambda for event-driven code without servers, ECS or EKS for containers, Fargate to remove cluster management, and App Runner, Beanstalk, or Lightsail when you want a simpler developer experience with less operational surface area.",
+      "tags" : ["compute", "selection", "tradeoffs"]
+    },
+    {
+      "id" : "whitepaper-aws-database-selection",
+      "title" : "Choosing an AWS Database Service",
+      "prompt" : "How do you choose among AWS database families at a high level?",
+      "answer" : "Start from the data model and access pattern, not the brand name. Use Aurora or RDS for relational workloads, DynamoDB or Keyspaces for large-scale low-latency NoSQL, DocumentDB for document-style JSON workloads, Neptune for graph relationships, Timestream for time-series data, and ElastiCache or MemoryDB when in-memory speed is the primary need.",
+      "tags" : ["databases", "selection", "tradeoffs"]
+    },
+    {
+      "id" : "whitepaper-aws-ec2",
+      "title" : "Amazon EC2",
+      "prompt" : "What is Amazon EC2 and when should you choose it?",
+      "answer" : "EC2 provides resizable virtual machines in the cloud. Choose it when you need OS-level control, custom runtimes, specialized instance types, or lift-and-shift compatibility; compare with Lambda, Fargate, or App Runner when you want less infrastructure management.",
+      "tags" : ["compute", "ec2", "virtual-machines"]
+    },
+    {
+      "id" : "whitepaper-aws-ec2-auto-scaling",
+      "title" : "Amazon EC2 Auto Scaling",
+      "prompt" : "When does EC2 Auto Scaling matter in a production architecture?",
+      "answer" : "Use EC2 Auto Scaling when traffic or background demand changes over time and you want capacity to expand or shrink automatically. It complements EC2 rather than replacing it, and it is most useful when you already know EC2 is the right compute model but do not want fixed overprovisioning.",
+      "tags" : ["compute", "autoscaling", "ec2"]
+    },
+    {
+      "id" : "whitepaper-aws-lightsail",
+      "title" : "Amazon Lightsail",
+      "prompt" : "What problem does Amazon Lightsail solve, and when is it a poor fit?",
+      "answer" : "Lightsail gives you a simpler all-in-one cloud experience for small apps, websites, and basic databases. Use it when simplicity matters more than deep AWS flexibility; move to EC2 or container services when networking, scaling, or integration needs become more complex.",
+      "tags" : ["compute", "lightsail", "simplicity"]
+    },
+    {
+      "id" : "whitepaper-aws-app-runner",
+      "title" : "AWS App Runner",
+      "prompt" : "When should you use AWS App Runner instead of ECS, EKS, or Lambda?",
+      "answer" : "Use App Runner when you want to deploy a web app or API from source or a container image without managing cluster infrastructure. It is better than ECS or EKS when you want operational simplicity, but it is less flexible than those services for complex platform control.",
+      "tags" : ["compute", "app-runner", "containers"]
+    },
+    {
+      "id" : "whitepaper-aws-batch",
+      "title" : "AWS Batch",
+      "prompt" : "What is AWS Batch best suited for?",
+      "answer" : "AWS Batch is for queued, batch-oriented compute jobs that need scheduling, dependency handling, and elastic capacity. Use it for analytics, simulations, media processing, or other asynchronous jobs rather than long-lived request-response APIs.",
+      "tags" : ["compute", "batch", "jobs"]
+    },
+    {
+      "id" : "whitepaper-aws-elastic-beanstalk",
+      "title" : "AWS Elastic Beanstalk",
+      "prompt" : "What is the practical role of Elastic Beanstalk today?",
+      "answer" : "Elastic Beanstalk is a higher-level deployment service for web applications that still runs on underlying AWS resources such as EC2 and load balancing. Use it when you want faster environment setup for conventional apps, but compare with App Runner or containers if you want a more modern deployment model.",
+      "tags" : ["compute", "elastic-beanstalk", "platform"]
+    },
+    {
+      "id" : "whitepaper-aws-fargate",
+      "title" : "AWS Fargate",
+      "prompt" : "What is AWS Fargate and when is it the right container compute choice?",
+      "answer" : "Fargate is serverless compute for containers used with ECS or EKS. Choose it when you want container packaging and orchestration without managing worker nodes; compare with EC2-backed clusters when you need lower-level control or tighter cost optimization at steady high scale.",
+      "tags" : ["compute", "fargate", "containers"]
+    },
+    {
+      "id" : "whitepaper-aws-lambda",
+      "title" : "AWS Lambda",
+      "prompt" : "When does Lambda fit best, and when should you be cautious?",
+      "answer" : "Lambda is best for event-driven, short-running, bursty workloads where paying only for execution time is attractive. Be cautious when workloads need long execution windows, specialized runtime control, large local state, or consistently hot high-throughput processing that may fit containers or EC2 better.",
+      "tags" : ["compute", "lambda", "serverless"]
+    },
+    {
+      "id" : "whitepaper-aws-ecr",
+      "title" : "Amazon ECR",
+      "prompt" : "Why do teams use Amazon ECR in a container platform on AWS?",
+      "answer" : "ECR is a managed container image registry tightly integrated with ECS and other AWS deployment flows. Use it when you want AWS-native image storage, IAM-based access control, and no self-managed registry infrastructure.",
+      "tags" : ["containers", "ecr", "registry"]
+    },
+    {
+      "id" : "whitepaper-aws-ecs",
+      "title" : "Amazon ECS",
+      "prompt" : "When is ECS a stronger choice than EKS?",
+      "answer" : "ECS is a managed container orchestration service designed to run and scale containers on AWS with less control-plane complexity than Kubernetes. Choose ECS when your team wants deep AWS integration and simpler operations; choose EKS when Kubernetes portability or ecosystem compatibility is a hard requirement.",
+      "tags" : ["containers", "ecs", "orchestration"]
+    },
+    {
+      "id" : "whitepaper-aws-eks",
+      "title" : "Amazon EKS",
+      "prompt" : "What is Amazon EKS best for?",
+      "answer" : "EKS is managed Kubernetes on AWS. Use it when you need Kubernetes APIs, tooling, and ecosystem compatibility, especially across teams that already operate Kubernetes; compare with ECS when simplicity and AWS-native operations matter more than Kubernetes standardization.",
+      "tags" : ["containers", "eks", "kubernetes"]
+    },
+    {
+      "id" : "whitepaper-aws-athena",
+      "title" : "Amazon Athena",
+      "prompt" : "What makes Athena useful in a data platform?",
+      "answer" : "Athena lets you run SQL directly against data in S3 without standing up query infrastructure. Use it for ad hoc analysis, lightweight reporting, and lake queries; compare with Redshift when you need a more tuned warehouse experience with higher concurrency and modeled analytics.",
+      "tags" : ["analytics", "athena", "s3"]
+    },
+    {
+      "id" : "whitepaper-aws-emr",
+      "title" : "Amazon EMR",
+      "prompt" : "When should you choose Amazon EMR instead of simpler analytics services?",
+      "answer" : "Choose EMR when you need managed big-data frameworks such as Spark or Hadoop and want more control over distributed processing environments. It is stronger than lightweight serverless query tools for large custom data-processing pipelines, but it brings more operational and cost discipline requirements.",
+      "tags" : ["analytics", "emr", "big-data"]
+    },
+    {
+      "id" : "whitepaper-aws-kinesis-data-streams",
+      "title" : "Amazon Kinesis Data Streams",
+      "prompt" : "What is Kinesis Data Streams for, and how is it different from Firehose?",
+      "answer" : "Kinesis Data Streams is for durable, real-time event ingestion where applications consume streaming records with low latency. Use it when you need custom stream-processing control; compare with Firehose when you mainly want managed delivery into destinations such as S3 or Redshift.",
+      "tags" : ["analytics", "streaming", "kinesis"]
+    },
+    {
+      "id" : "whitepaper-aws-data-firehose",
+      "title" : "Amazon Data Firehose",
+      "prompt" : "When is Amazon Data Firehose the better choice than Kinesis Data Streams?",
+      "answer" : "Use Firehose when the main goal is reliably landing streaming data into destinations such as S3, Redshift, or OpenSearch with minimal operational work. It is better than Data Streams when you do not need custom consumer applications or detailed stream management.",
+      "tags" : ["analytics", "firehose", "delivery"]
+    },
+    {
+      "id" : "whitepaper-aws-managed-flink",
+      "title" : "Amazon Managed Service for Apache Flink",
+      "prompt" : "What problem does Amazon Managed Service for Apache Flink solve?",
+      "answer" : "It runs continuous stream-processing applications so teams can analyze and react to data in real time without operating Flink infrastructure directly. Use it when streaming transformations or event-time logic are central; compare with Firehose when simple delivery is enough.",
+      "tags" : ["analytics", "flink", "stream-processing"]
+    },
+    {
+      "id" : "whitepaper-aws-opensearch",
+      "title" : "Amazon OpenSearch Service",
+      "prompt" : "What is OpenSearch Service good at?",
+      "answer" : "OpenSearch Service is for search, log analytics, real-time exploration, and visualization of indexed data. Use it for full-text search or operational analytics; avoid treating it as your primary transactional system when a database is the better source of truth.",
+      "tags" : ["analytics", "search", "opensearch"]
+    },
+    {
+      "id" : "whitepaper-aws-redshift",
+      "title" : "Amazon Redshift",
+      "prompt" : "When does Redshift make sense instead of Athena?",
+      "answer" : "Redshift is a managed data warehouse for analytical workloads where you want more controlled performance, concurrency, and warehouse-style modeling. Choose it over Athena when the workload is sustained, curated, and performance-sensitive rather than ad hoc over raw lake data.",
+      "tags" : ["analytics", "redshift", "warehouse"]
+    },
+    {
+      "id" : "whitepaper-aws-glue",
+      "title" : "AWS Glue",
+      "prompt" : "What role does AWS Glue play in a data architecture?",
+      "answer" : "Glue is a managed integration and ETL service used to discover, prepare, move, and transform data. Use it when you need pipeline orchestration and metadata support around data movement rather than a query engine for end-user analysis.",
+      "tags" : ["analytics", "glue", "etl"]
+    },
+    {
+      "id" : "whitepaper-aws-lake-formation",
+      "title" : "AWS Lake Formation",
+      "prompt" : "Why would a data team use AWS Lake Formation?",
+      "answer" : "Lake Formation helps build and govern a secure data lake by simplifying permissions, data access, and setup around S3-based analytics. Use it when lake governance is becoming harder to manage manually across services such as Glue and Athena.",
+      "tags" : ["analytics", "lake-formation", "governance"]
+    },
+    {
+      "id" : "whitepaper-aws-msk",
+      "title" : "Amazon MSK",
+      "prompt" : "When should you use Amazon MSK instead of simpler AWS messaging services?",
+      "answer" : "Use Amazon MSK when Kafka compatibility, stream retention, partitioned event logs, and Kafka ecosystem tooling are required. Compare it with SQS or SNS when you need simpler messaging patterns rather than a full event-streaming platform.",
+      "tags" : ["analytics", "msk", "kafka"]
+    },
+    {
+      "id" : "whitepaper-aws-step-functions",
+      "title" : "AWS Step Functions",
+      "prompt" : "What is Step Functions best used for?",
+      "answer" : "Step Functions orchestrates multi-step workflows with state, branching, retries, and service integrations. Use it when business or integration processes span multiple steps and failure handling should be explicit; it is not a message queue replacement.",
+      "tags" : ["integration", "step-functions", "workflow"]
+    },
+    {
+      "id" : "whitepaper-aws-eventbridge",
+      "title" : "Amazon EventBridge",
+      "prompt" : "When is EventBridge the right integration choice?",
+      "answer" : "Use EventBridge for event routing across AWS services, SaaS systems, and custom applications where producers and consumers should stay loosely coupled. It fits event-driven architectures better than point-to-point service calls, but it is not a drop-in substitute for durable work queues.",
+      "tags" : ["integration", "eventbridge", "events"]
+    },
+    {
+      "id" : "whitepaper-aws-mq",
+      "title" : "Amazon MQ",
+      "prompt" : "What problem does Amazon MQ solve in migrations or integrations?",
+      "answer" : "Amazon MQ gives you managed message brokers for teams that need common broker patterns or compatibility with existing applications. Use it when you want to preserve broker-based integrations; compare with SQS and SNS when you can adopt simpler cloud-native messaging instead.",
+      "tags" : ["integration", "amazon-mq", "messaging"]
+    },
+    {
+      "id" : "whitepaper-aws-sns",
+      "title" : "Amazon SNS",
+      "prompt" : "What is SNS best at compared with SQS?",
+      "answer" : "SNS is best for pub/sub fan-out, where one event should notify multiple subscribers such as queues, Lambda functions, or endpoints. Compare it with SQS when the need is buffered work distribution to consumers rather than broad notification.",
+      "tags" : ["integration", "sns", "pubsub"]
+    },
+    {
+      "id" : "whitepaper-aws-sqs",
+      "title" : "Amazon SQS",
+      "prompt" : "When should you use SQS?",
+      "answer" : "Use SQS to decouple producers and consumers with durable queues that absorb spikes and smooth work execution. It is better than direct service calls for asynchronous buffering, but unlike SNS it does not fan out one message to many independent subscribers by itself.",
+      "tags" : ["integration", "sqs", "queues"]
+    },
+    {
+      "id" : "whitepaper-aws-ses",
+      "title" : "Amazon SES",
+      "prompt" : "What is SES for in an application architecture?",
+      "answer" : "SES is managed email delivery for transactional and bulk outbound email use cases such as notifications, confirmations, and account workflows. Use it when email is an infrastructure capability you want to consume, not a full custom mail platform you want to run.",
+      "tags" : ["business-applications", "ses", "email"]
+    },
+    {
+      "id" : "whitepaper-aws-cost-explorer",
+      "title" : "AWS Cost Explorer",
+      "prompt" : "How does Cost Explorer help architects and platform teams?",
+      "answer" : "Cost Explorer is for understanding and visualizing AWS spend over time so teams can spot trends, outliers, and optimization opportunities. It is a decision-support tool rather than an enforcement control, so pair it with budgets or governance when you need action thresholds.",
+      "tags" : ["cost", "cost-explorer", "finops"]
+    },
+    {
+      "id" : "whitepaper-aws-budgets",
+      "title" : "AWS Budgets",
+      "prompt" : "When do AWS Budgets add value beyond dashboards?",
+      "answer" : "Budgets matter when teams need proactive thresholds and notifications for spend, usage, or commitment tracking. Use them to create operating guardrails; compare with Cost Explorer, which is stronger for analysis than alerting.",
+      "tags" : ["cost", "budgets", "finops"]
+    },
+    {
+      "id" : "whitepaper-aws-s3",
+      "title" : "Amazon S3",
+      "prompt" : "What is Amazon S3 best used for in an AWS architecture?",
+      "answer" : "S3 is durable object storage for files, datasets, logs, backups, static assets, and lake storage. Use it when object semantics and large-scale durability matter; compare with EBS for block storage attached to compute and EFS for shared file access.",
+      "tags" : ["storage", "s3", "object-storage"]
+    },
+    {
+      "id" : "whitepaper-aws-ebs",
+      "title" : "Amazon EBS",
+      "prompt" : "When do you choose EBS instead of S3 or EFS?",
+      "answer" : "EBS is persistent block storage designed for use with compute instances. Choose it for boot volumes, transactional workloads, or applications that expect attached disks; do not use it like shared file storage or object storage.",
+      "tags" : ["storage", "ebs", "block-storage"]
+    },
+    {
+      "id" : "whitepaper-aws-efs",
+      "title" : "Amazon EFS",
+      "prompt" : "What is EFS intended for?",
+      "answer" : "EFS is managed shared file storage that can be mounted by multiple compute resources. Use it when several services or instances need a common file system; compare with EBS for single-instance block workloads and S3 for object-centric storage.",
+      "tags" : ["storage", "efs", "file-storage"]
+    },
+    {
+      "id" : "whitepaper-aws-vpc",
+      "title" : "Amazon VPC",
+      "prompt" : "Why is Amazon VPC foundational in AWS design?",
+      "answer" : "A VPC gives you isolated networking boundaries, subnets, routing, and traffic controls for AWS resources. It is foundational because most security, connectivity, and segmentation choices depend on how the network is shaped first.",
+      "tags" : ["networking", "vpc", "foundation"]
+    },
+    {
+      "id" : "whitepaper-aws-cloudfront",
+      "title" : "Amazon CloudFront",
+      "prompt" : "When should you put CloudFront in front of an application?",
+      "answer" : "Use CloudFront when you need low-latency global delivery for static content, downloads, APIs, or video, and want edge caching plus integration with other AWS edge protections. It is especially valuable when users are geographically distributed or origin protection matters.",
+      "tags" : ["networking", "cloudfront", "cdn"]
+    },
+    {
+      "id" : "whitepaper-aws-route53",
+      "title" : "Amazon Route 53",
+      "prompt" : "What makes Route 53 more than simple DNS hosting?",
+      "answer" : "Route 53 combines domain management with reliable DNS, health checks, and multiple routing strategies such as latency-based, weighted, and failover routing. Use it when traffic steering and resilience are part of the design, not just name resolution.",
+      "tags" : ["networking", "route53", "dns"]
+    },
+    {
+      "id" : "whitepaper-aws-transit-gateway",
+      "title" : "AWS Transit Gateway",
+      "prompt" : "When does Transit Gateway become valuable?",
+      "answer" : "Transit Gateway matters when many VPCs and on-premises networks need connectivity and point-to-point peering becomes hard to manage. It centralizes network attachment patterns and scales better than a web of ad hoc connections.",
+      "tags" : ["networking", "transit-gateway", "hybrid"]
+    },
+    {
+      "id" : "whitepaper-aws-iam",
+      "title" : "AWS Identity and Access Management",
+      "prompt" : "What is IAM responsible for in AWS?",
+      "answer" : "IAM controls who can do what in AWS through identities, roles, and policies. It is the core authorization layer for least-privilege access and should be treated as foundational infrastructure, not an afterthought added after services are deployed.",
+      "tags" : ["security", "iam", "identity"]
+    },
+    {
+      "id" : "whitepaper-aws-kms",
+      "title" : "AWS Key Management Service",
+      "prompt" : "When is AWS KMS the right cryptographic control point?",
+      "answer" : "Use KMS when you want managed encryption key control integrated across AWS services. It is the practical default for many workloads because it reduces custom key-management complexity while still allowing governance over key usage.",
+      "tags" : ["security", "kms", "encryption"]
+    },
+    {
+      "id" : "whitepaper-aws-guardduty",
+      "title" : "Amazon GuardDuty",
+      "prompt" : "What is GuardDuty used for?",
+      "answer" : "GuardDuty is a managed threat-detection service that analyzes signals to identify suspicious behavior in AWS environments. Use it to improve security visibility without building custom detection pipelines from scratch.",
+      "tags" : ["security", "guardduty", "threat-detection"]
+    },
+    {
+      "id" : "whitepaper-aws-inspector",
+      "title" : "Amazon Inspector",
+      "prompt" : "When does Amazon Inspector add value?",
+      "answer" : "Inspector helps identify software vulnerabilities and configuration issues in supported AWS workloads. Use it to strengthen continuous security assessment, especially when teams want managed scanning rather than ad hoc manual review.",
+      "tags" : ["security", "inspector", "vulnerability-management"]
+    },
+    {
+      "id" : "whitepaper-aws-waf",
+      "title" : "AWS WAF",
+      "prompt" : "Where does AWS WAF fit in a web architecture?",
+      "answer" : "WAF is for filtering and protecting HTTP application traffic using rules around requests and attack patterns. Use it in front of web applications and APIs, often with CloudFront or load balancing, when application-layer protection is needed beyond basic network controls.",
+      "tags" : ["security", "waf", "web-security"]
+    },
+    {
+      "id" : "whitepaper-aws-shield",
+      "title" : "AWS Shield",
+      "prompt" : "What is AWS Shield intended to protect against?",
+      "answer" : "Shield protects against distributed denial-of-service attacks, with standard protection automatically covering common infrastructure-layer threats and advanced protection offering higher support and visibility. It is a resilience layer for exposed services, not a substitute for application security design.",
+      "tags" : ["security", "shield", "ddos"]
+    },
+    {
+      "id" : "whitepaper-aws-cloudtrail",
+      "title" : "AWS CloudTrail",
+      "prompt" : "Why is CloudTrail important even when nothing is broken?",
+      "answer" : "CloudTrail records API activity and account events so teams can audit changes, investigate incidents, and prove who did what. It is essential for governance and forensics because prevention controls alone do not answer what happened after the fact.",
+      "tags" : ["operations", "cloudtrail", "audit"]
+    },
+    {
+      "id" : "whitepaper-aws-cloudwatch",
+      "title" : "Amazon CloudWatch",
+      "prompt" : "What does CloudWatch cover in day-to-day operations?",
+      "answer" : "CloudWatch is the core AWS observability layer for metrics, logs, alarms, and dashboards. Use it for baseline operational visibility and alerting; pair it with tracing or deeper analytics tools when you need richer request-level diagnostics.",
+      "tags" : ["operations", "cloudwatch", "observability"]
+    },
+    {
+      "id" : "whitepaper-aws-xray",
+      "title" : "AWS X-Ray",
+      "prompt" : "When is X-Ray more useful than logs alone?",
+      "answer" : "Use X-Ray when distributed request tracing matters, especially across microservices and serverless flows. Logs tell you what happened inside a component, while tracing helps show how latency and failures move across the system end to end.",
+      "tags" : ["operations", "xray", "tracing"]
+    },
+    {
+      "id" : "whitepaper-aws-systems-manager",
+      "title" : "AWS Systems Manager",
+      "prompt" : "What is Systems Manager used for in operations?",
+      "answer" : "Systems Manager centralizes operational tasks such as patching, configuration, automation, and controlled instance access. Use it to reduce bespoke operations scripts and improve governance over routine infrastructure management.",
+      "tags" : ["operations", "systems-manager", "management"]
+    },
+    {
+      "id" : "whitepaper-aws-aurora",
+      "title" : "Amazon Aurora",
+      "prompt" : "When should Aurora be preferred over standard RDS engines?",
+      "answer" : "Choose Aurora when you want managed relational databases with high performance and availability while keeping MySQL or PostgreSQL compatibility. It is often stronger than standard RDS for demanding cloud-native relational workloads, but only if the extra capability justifies the model and cost.",
+      "tags" : ["databases", "aurora", "relational"]
+    },
+    {
+      "id" : "whitepaper-aws-rds",
+      "title" : "Amazon RDS",
+      "prompt" : "What does Amazon RDS optimize for?",
+      "answer" : "RDS optimizes for easier setup, operation, and scaling of relational databases without self-managing the full database platform. Use it for traditional transactional apps, ERP, CRM, and common line-of-business systems that fit a relational model.",
+      "tags" : ["databases", "rds", "relational"]
+    },
+    {
+      "id" : "whitepaper-aws-dynamodb",
+      "title" : "Amazon DynamoDB",
+      "prompt" : "When is DynamoDB the right fit?",
+      "answer" : "Use DynamoDB for large-scale, low-latency key-value or document workloads where predictable access patterns and managed scalability matter. It is a strong fit for internet-scale application backends, but schema and query design must be driven by access patterns up front.",
+      "tags" : ["databases", "dynamodb", "nosql"]
+    },
+    {
+      "id" : "whitepaper-aws-elasticache",
+      "title" : "Amazon ElastiCache",
+      "prompt" : "What role does ElastiCache play in system design?",
+      "answer" : "ElastiCache provides managed in-memory caching to reduce read latency and offload primary databases. Use it when the goal is speed through caching or transient state access; do not treat a cache as the only durable system of record.",
+      "tags" : ["databases", "elasticache", "cache"]
+    },
+    {
+      "id" : "whitepaper-aws-memorydb",
+      "title" : "Amazon MemoryDB",
+      "prompt" : "How is MemoryDB different from ElastiCache?",
+      "answer" : "MemoryDB is a durable, Redis-compatible in-memory database, whereas ElastiCache is commonly used as a cache tier. Use MemoryDB when you want in-memory performance but the data layer itself must remain durable rather than disposable.",
+      "tags" : ["databases", "memorydb", "in-memory"]
+    },
+    {
+      "id" : "whitepaper-aws-neptune",
+      "title" : "Amazon Neptune",
+      "prompt" : "When should you choose Neptune?",
+      "answer" : "Choose Neptune when relationships are first-class and traversals drive the workload, such as knowledge graphs, fraud linkage, or recommendation graphs. It is a graph database, so it is a better fit than relational or document models when connection-heavy queries dominate.",
+      "tags" : ["databases", "neptune", "graph"]
+    },
+    {
+      "id" : "whitepaper-aws-timestream",
+      "title" : "Amazon Timestream",
+      "prompt" : "What workloads is Timestream built for?",
+      "answer" : "Timestream is built for time-series data such as operational metrics, IoT signals, and application telemetry where recent-versus-historical data patterns matter. Use it when time-windowed queries and time-based retention are core requirements.",
+      "tags" : ["databases", "timestream", "time-series"]
+    },
+    {
+      "id" : "whitepaper-aws-documentdb",
+      "title" : "Amazon DocumentDB",
+      "prompt" : "When is DocumentDB appropriate?",
+      "answer" : "Use DocumentDB for managed document-oriented workloads where JSON-like application data and flexible document access patterns are a good fit. Compare it with DynamoDB when the workload is key-value at massive scale, and with relational databases when joins and transactions dominate.",
+      "tags" : ["databases", "documentdb", "document"]
+    },
+    {
+      "id" : "whitepaper-aws-keyspaces",
+      "title" : "Amazon Keyspaces",
+      "prompt" : "What problem does Amazon Keyspaces address?",
+      "answer" : "Keyspaces is for managed Apache Cassandra-compatible wide-column workloads. Use it when Cassandra data models and access patterns fit the problem but you do not want to operate Cassandra clusters yourself.",
+      "tags" : ["databases", "keyspaces", "wide-column"]
+    }
+  ]
+}

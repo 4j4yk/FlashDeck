@@ -1,0 +1,749 @@
+{
+  "deck_id": "custom-aws-overview-whitepaper",
+  "documents": [
+    {
+      "id": "aws-compute-selection",
+      "title": "AWS Compute Service Selection",
+      "aliases": ["compute selection", "choose compute", "aws compute comparison"],
+      "tags": ["compute", "selection", "tradeoffs"],
+      "summary": "Choose AWS compute by the level of control, packaging model, and operational ownership you want to keep.",
+      "key_points": [
+        "EC2 fits workloads that need VM-level control and custom operating-system behavior.",
+        "Lambda fits event-driven code when you want to avoid managing servers.",
+        "ECS, EKS, and Fargate fit containerized workloads with different tradeoffs in control and complexity."
+      ],
+      "examples": [
+        "Use App Runner or Elastic Beanstalk when you want a simpler deployment experience than raw infrastructure.",
+        "Use Batch when the workload is queued job processing rather than request-response APIs."
+      ],
+      "compare_to": ["ec2", "lambda", "fargate"],
+      "pitfalls": [
+        "Choosing the most flexible option by default and inheriting avoidable operational burden.",
+        "Treating every compute choice as interchangeable when workload shape is different."
+      ],
+      "avoid_when": [
+        "Avoid premature standardization on one compute service before understanding runtime, scaling, and operations needs."
+      ]
+    },
+    {
+      "id": "ec2",
+      "title": "Amazon EC2",
+      "aliases": ["ec2", "elastic compute cloud", "virtual machines"],
+      "tags": ["compute", "vm", "infrastructure"],
+      "summary": "EC2 provides resizable virtual machines when you need operating-system control, custom runtimes, or compatibility with server-based software.",
+      "key_points": [
+        "EC2 is flexible but pushes more patching, scaling, and instance hygiene onto your team.",
+        "It is useful for lift-and-shift migrations and workloads with host-level dependencies.",
+        "Production use usually still depends on Auto Scaling, load balancing, and monitoring."
+      ],
+      "examples": [
+        "Run legacy applications that expect a server and local disk semantics.",
+        "Host software with custom agents or kernel-level requirements."
+      ],
+      "compare_to": ["lambda", "fargate"],
+      "pitfalls": [
+        "Using EC2 by default when a managed platform would reduce operational load.",
+        "Ignoring idle capacity cost and scaling lag."
+      ],
+      "avoid_when": [
+        "Avoid EC2 when a serverless or managed container option already fits the workload well."
+      ]
+    },
+    {
+      "id": "lambda",
+      "title": "AWS Lambda",
+      "aliases": ["lambda", "serverless functions", "event-driven compute"],
+      "tags": ["compute", "serverless", "events"],
+      "summary": "Lambda is event-driven serverless compute for bursty, asynchronous, or lightweight request-driven workloads.",
+      "key_points": [
+        "Lambda is strongest when execution is short-lived and naturally triggered by events.",
+        "It reduces server management but not application design complexity.",
+        "Concurrency and downstream system limits still matter in serverless architectures."
+      ],
+      "examples": [
+        "React to S3 uploads, queue messages, or scheduled events.",
+        "Run lightweight APIs behind API Gateway."
+      ],
+      "compare_to": ["ec2", "fargate"],
+      "pitfalls": [
+        "Using Lambda for long-running, stateful, or connection-heavy workloads.",
+        "Ignoring cold starts or concurrency spikes in latency-sensitive paths."
+      ],
+      "avoid_when": [
+        "Avoid Lambda when workloads need long execution windows, stable in-memory state, or specialized runtime control."
+      ]
+    },
+    {
+      "id": "fargate",
+      "title": "AWS Fargate",
+      "aliases": ["fargate", "serverless containers"],
+      "tags": ["compute", "containers", "serverless"],
+      "summary": "Fargate provides serverless compute for containers so teams can use container packaging without managing worker nodes.",
+      "key_points": [
+        "Fargate is used with ECS or EKS rather than as a standalone orchestration layer.",
+        "It reduces cluster operations compared with self-managed container hosts.",
+        "It is best when container boundaries matter but infrastructure management should stay small."
+      ],
+      "examples": [
+        "Run microservices packaged as containers without managing EC2-backed clusters.",
+        "Operate internal APIs that need container control but not host administration."
+      ],
+      "compare_to": ["ecs", "eks", "ec2"],
+      "pitfalls": [
+        "Choosing Fargate without validating steady-state cost at high scale.",
+        "Assuming serverless containers remove all performance tuning concerns."
+      ],
+      "avoid_when": [
+        "Avoid Fargate when low-level host control or specialized node configuration is a hard requirement."
+      ]
+    },
+    {
+      "id": "ecs",
+      "title": "Amazon ECS",
+      "aliases": ["ecs", "elastic container service"],
+      "tags": ["containers", "orchestration", "aws-native"],
+      "summary": "ECS is AWS-native container orchestration for teams that want managed container scheduling with less control-plane complexity than Kubernetes.",
+      "key_points": [
+        "ECS fits teams that want deep AWS integration and simpler operations.",
+        "It can run on EC2 or Fargate depending on infrastructure preferences.",
+        "It is a strong choice when Kubernetes portability is not a hard requirement."
+      ],
+      "examples": [
+        "Run internal microservices with IAM, load balancing, and AWS-native deployment flows.",
+        "Standardize on containers without adopting Kubernetes complexity."
+      ],
+      "compare_to": ["eks", "fargate"],
+      "pitfalls": [
+        "Choosing ECS when the organization has a non-negotiable Kubernetes platform standard.",
+        "Treating orchestration as solved without defining deployment, observability, and scaling patterns."
+      ],
+      "avoid_when": [
+        "Avoid ECS when Kubernetes APIs and ecosystem compatibility are a core requirement."
+      ]
+    },
+    {
+      "id": "eks",
+      "title": "Amazon EKS",
+      "aliases": ["eks", "managed kubernetes", "elastic kubernetes service"],
+      "tags": ["containers", "kubernetes", "orchestration"],
+      "summary": "EKS is managed Kubernetes on AWS for teams that need Kubernetes APIs, tooling, and ecosystem compatibility.",
+      "key_points": [
+        "EKS preserves the Kubernetes operating model while AWS manages part of the control plane.",
+        "It is useful when teams already invest in Kubernetes skills or tooling.",
+        "It usually brings more platform complexity than ECS."
+      ],
+      "examples": [
+        "Run workloads that depend on Kubernetes-native deployment patterns or operators.",
+        "Align with an existing multi-team Kubernetes platform strategy."
+      ],
+      "compare_to": ["ecs", "fargate"],
+      "pitfalls": [
+        "Choosing EKS for prestige instead of real platform needs.",
+        "Underestimating cluster operations, networking, and upgrade governance."
+      ],
+      "avoid_when": [
+        "Avoid EKS when simpler AWS-native orchestration is sufficient."
+      ]
+    },
+    {
+      "id": "analytics-selection",
+      "title": "AWS Analytics Service Selection",
+      "aliases": ["analytics selection", "choose analytics", "aws analytics comparison"],
+      "tags": ["analytics", "selection", "tradeoffs"],
+      "summary": "Choose AWS analytics services by whether the need is ad hoc SQL, warehousing, streaming, or distributed data processing.",
+      "key_points": [
+        "Athena is best for querying data in S3 without standing up query infrastructure.",
+        "Redshift fits governed warehouse-style analytics with stronger performance expectations.",
+        "EMR and Flink fit managed big-data and stream-processing needs when teams need more control."
+      ],
+      "examples": [
+        "Use Firehose for managed delivery and Kinesis Data Streams when custom consumers are required.",
+        "Use OpenSearch for search and log exploration rather than warehouse-style analytics."
+      ],
+      "compare_to": ["athena", "redshift", "emr"],
+      "pitfalls": [
+        "Treating every analytics workload as the same just because the input data is in S3.",
+        "Ignoring whether the team needs warehouse, streaming, or ETL behavior."
+      ],
+      "avoid_when": [
+        "Avoid selecting analytics services by familiarity alone; start from query pattern, latency, and governance needs."
+      ]
+    },
+    {
+      "id": "athena",
+      "title": "Amazon Athena",
+      "aliases": ["athena", "sql on s3", "serverless query"],
+      "tags": ["analytics", "sql", "s3"],
+      "summary": "Athena is serverless SQL over data in S3 for ad hoc analysis and lightweight reporting.",
+      "key_points": [
+        "Athena removes the need to provision query infrastructure for many lake queries.",
+        "It is well suited to exploratory analysis and lightweight governed reporting.",
+        "It is not the same as a tuned warehouse for heavy sustained workloads."
+      ],
+      "examples": [
+        "Query raw or curated data in S3 for investigations and quick reports.",
+        "Support analysts who need SQL access without standing up clusters."
+      ],
+      "compare_to": ["redshift", "s3"],
+      "pitfalls": [
+        "Using Athena for sustained warehouse workloads that need tight performance control.",
+        "Ignoring data layout and partition strategy in S3."
+      ],
+      "avoid_when": [
+        "Avoid Athena when concurrency, modeled warehouse workloads, or predictable performance dominate."
+      ]
+    },
+    {
+      "id": "redshift",
+      "title": "Amazon Redshift",
+      "aliases": ["redshift", "data warehouse"],
+      "tags": ["analytics", "warehouse", "sql"],
+      "summary": "Redshift is a managed data warehouse for analytical workloads that need stronger performance and warehouse-style governance than ad hoc lake queries.",
+      "key_points": [
+        "Redshift fits sustained analytics, curated datasets, and higher-query concurrency.",
+        "It is stronger than ad hoc query services when a warehouse model is justified.",
+        "It still requires thoughtful modeling, workload planning, and cost discipline."
+      ],
+      "examples": [
+        "Support business intelligence dashboards over curated datasets.",
+        "Run recurring analytical queries with tighter performance expectations."
+      ],
+      "compare_to": ["athena", "emr"],
+      "pitfalls": [
+        "Using a warehouse before the data model and reporting needs are mature enough.",
+        "Assuming a managed warehouse removes the need for modeling and tuning."
+      ],
+      "avoid_when": [
+        "Avoid Redshift when the workload is mostly exploratory SQL over raw S3 data."
+      ]
+    },
+    {
+      "id": "emr",
+      "title": "Amazon EMR",
+      "aliases": ["emr", "elastic mapreduce", "spark", "hadoop"],
+      "tags": ["analytics", "big-data", "distributed-processing"],
+      "summary": "EMR provides managed big-data infrastructure for frameworks such as Spark and Hadoop when teams need large-scale distributed processing control.",
+      "key_points": [
+        "EMR is stronger than lightweight serverless analytics tools when custom distributed processing matters.",
+        "It gives more control over framework-driven data processing environments.",
+        "That flexibility comes with more operational and cost-management responsibility."
+      ],
+      "examples": [
+        "Run large-scale Spark transformations and batch processing pipelines.",
+        "Process datasets too complex for lightweight query-only services."
+      ],
+      "compare_to": ["athena", "redshift"],
+      "pitfalls": [
+        "Choosing EMR when the real need is just ad hoc SQL or simple ETL.",
+        "Underestimating job orchestration and cluster cost management."
+      ],
+      "avoid_when": [
+        "Avoid EMR when serverless query or lighter ETL services already fit the problem."
+      ]
+    },
+    {
+      "id": "kinesis-data-streams",
+      "title": "Amazon Kinesis Data Streams",
+      "aliases": ["kinesis data streams", "kds", "stream ingestion"],
+      "tags": ["analytics", "streaming", "events"],
+      "summary": "Kinesis Data Streams is for durable, low-latency streaming ingestion when applications need custom consumers over event streams.",
+      "key_points": [
+        "It supports real-time stream consumption patterns rather than just managed landing into destinations.",
+        "It is useful when teams need control over consumers and stream-processing behavior.",
+        "It is part of a broader streaming architecture, not the whole design."
+      ],
+      "examples": [
+        "Feed stream processors or custom consumer applications in near real time.",
+        "Capture application or device events for downstream analytics."
+      ],
+      "compare_to": ["data-firehose", "msk"],
+      "pitfalls": [
+        "Using Data Streams when the workload only needs managed delivery into storage.",
+        "Ignoring consumer scaling and downstream pressure."
+      ],
+      "avoid_when": [
+        "Avoid Kinesis Data Streams when simple delivery is enough and no custom consumption logic is needed."
+      ]
+    },
+    {
+      "id": "data-firehose",
+      "title": "Amazon Data Firehose",
+      "aliases": ["firehose", "data firehose", "managed stream delivery"],
+      "tags": ["analytics", "delivery", "streaming"],
+      "summary": "Data Firehose is for managed streaming delivery into destinations such as S3 and Redshift with less operational work than custom stream consumption.",
+      "key_points": [
+        "Firehose is oriented around reliable landing and delivery rather than general-purpose streaming consumers.",
+        "It is the simpler choice when the destination matters more than custom stream processing.",
+        "It reduces stream-management burden compared with building custom consumers."
+      ],
+      "examples": [
+        "Land application or telemetry data in S3 for later analytics.",
+        "Deliver streaming data into analytics destinations with minimal operational code."
+      ],
+      "compare_to": ["kinesis-data-streams", "athena"],
+      "pitfalls": [
+        "Choosing Firehose when the application really needs custom near-real-time consumers.",
+        "Confusing delivery convenience with full stream-processing capability."
+      ],
+      "avoid_when": [
+        "Avoid Firehose when custom event consumers and fine-grained stream control are core requirements."
+      ]
+    },
+    {
+      "id": "storage-selection",
+      "title": "AWS Storage Service Selection",
+      "aliases": ["storage selection", "choose storage", "aws storage comparison"],
+      "tags": ["storage", "selection", "tradeoffs"],
+      "summary": "Choose AWS storage by access semantics first: objects, block devices, or shared filesystems are different architectural tools.",
+      "key_points": [
+        "S3 is object storage for durability, scale, and large datasets or assets.",
+        "EBS is block storage for compute-attached volumes and transactional disk patterns.",
+        "EFS is shared file storage for multiple compute resources that need a common filesystem."
+      ],
+      "examples": [
+        "Use S3 for backups and static assets, EBS for databases on instances, and EFS for shared content workflows.",
+        "Storage mistakes usually come from forcing one access pattern into another."
+      ],
+      "compare_to": ["s3", "ebs", "efs"],
+      "pitfalls": [
+        "Using object storage like a mounted disk.",
+        "Choosing shared file storage when the application really wants object semantics."
+      ],
+      "avoid_when": [
+        "Avoid selecting storage by habit; start from access pattern, sharing needs, and durability model."
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "Amazon S3",
+      "aliases": ["s3", "object storage", "simple storage service"],
+      "tags": ["storage", "objects", "durability"],
+      "summary": "S3 is durable object storage for files, logs, backups, static assets, and lake-style datasets.",
+      "key_points": [
+        "S3 is built around object semantics rather than mounted block or POSIX file behavior.",
+        "It is foundational for backups, static distribution, and data lake patterns.",
+        "Lifecycle, encryption, and access control are central design features."
+      ],
+      "examples": [
+        "Store application documents and media files.",
+        "Use S3 as a raw and curated analytics storage layer."
+      ],
+      "compare_to": ["ebs", "efs"],
+      "pitfalls": [
+        "Treating S3 like a low-latency transactional database.",
+        "Ignoring object naming and access-policy design."
+      ],
+      "avoid_when": [
+        "Avoid S3 when the workload needs attached disk semantics or shared POSIX behavior."
+      ]
+    },
+    {
+      "id": "ebs",
+      "title": "Amazon EBS",
+      "aliases": ["ebs", "elastic block store", "block storage"],
+      "tags": ["storage", "block", "compute"],
+      "summary": "EBS is persistent block storage intended for use with compute instances that need attached disks.",
+      "key_points": [
+        "EBS fits boot volumes, transactional workloads, and software that expects block devices.",
+        "It is tied to compute-centric storage patterns rather than global object access.",
+        "It is not a shared multi-writer filesystem substitute."
+      ],
+      "examples": [
+        "Provide volumes for EC2-hosted applications and databases.",
+        "Use attached storage for instance-based transactional systems."
+      ],
+      "compare_to": ["s3", "efs"],
+      "pitfalls": [
+        "Using EBS for multi-instance shared file access.",
+        "Treating block storage as if it solved durability and operations by itself."
+      ],
+      "avoid_when": [
+        "Avoid EBS when the real need is object storage or a shared filesystem."
+      ]
+    },
+    {
+      "id": "efs",
+      "title": "Amazon EFS",
+      "aliases": ["efs", "elastic file system", "shared file storage"],
+      "tags": ["storage", "files", "shared-access"],
+      "summary": "EFS is managed shared file storage for workloads that need a common filesystem across multiple compute resources.",
+      "key_points": [
+        "EFS is useful when many services or instances need shared file access.",
+        "It fits file-oriented patterns better than object storage or attached block devices.",
+        "It solves sharing semantics, not every performance or cost concern."
+      ],
+      "examples": [
+        "Share content or application assets across multiple compute nodes.",
+        "Support workloads that expect a network file system."
+      ],
+      "compare_to": ["s3", "ebs"],
+      "pitfalls": [
+        "Using EFS when the application would be simpler with object storage.",
+        "Choosing shared storage without validating actual access patterns."
+      ],
+      "avoid_when": [
+        "Avoid EFS when the workload is object-centric or needs only single-instance attached storage."
+      ]
+    },
+    {
+      "id": "database-selection",
+      "title": "AWS Database Service Selection",
+      "aliases": ["database selection", "choose database", "aws database comparison"],
+      "tags": ["database", "selection", "tradeoffs"],
+      "summary": "Choose AWS databases from the data model and access pattern, not from habit or brand familiarity.",
+      "key_points": [
+        "Relational engines such as RDS and Aurora fit transactional SQL workloads.",
+        "DynamoDB fits large-scale low-latency key-value and document access patterns.",
+        "Specialized services such as Neptune and Timestream are better when graph or time-series behavior dominates."
+      ],
+      "examples": [
+        "Start with access pattern, consistency needs, and scale shape before selecting the engine.",
+        "Specialized data models often outperform forced general-purpose compromises."
+      ],
+      "compare_to": ["aurora", "rds", "dynamodb"],
+      "pitfalls": [
+        "Moving relational schemas directly into non-relational databases.",
+        "Using one database family for every workload to reduce cognitive load."
+      ],
+      "avoid_when": [
+        "Avoid database choices driven by team familiarity alone when the workload shape clearly points elsewhere."
+      ]
+    },
+    {
+      "id": "aurora",
+      "title": "Amazon Aurora",
+      "aliases": ["aurora", "aurora mysql", "aurora postgresql"],
+      "tags": ["database", "relational", "availability"],
+      "summary": "Aurora is a managed relational database service designed for higher-performance, cloud-native relational workloads with MySQL or PostgreSQL compatibility.",
+      "key_points": [
+        "Aurora targets demanding relational workloads that still want familiar SQL engines.",
+        "It is often stronger than standard RDS engines when performance and resilience expectations are higher.",
+        "It remains a relational system, so schema and query design still matter."
+      ],
+      "examples": [
+        "Back transaction-heavy applications that need managed SQL with stronger cloud-native capabilities.",
+        "Use when relational consistency matters but self-managed tuning is undesirable."
+      ],
+      "compare_to": ["rds", "dynamodb"],
+      "pitfalls": [
+        "Choosing Aurora just because it is the premium relational option.",
+        "Ignoring whether the workload actually needs relational semantics at all."
+      ],
+      "avoid_when": [
+        "Avoid Aurora when the workload is better modeled as key-value, document, graph, or time-series data."
+      ]
+    },
+    {
+      "id": "rds",
+      "title": "Amazon RDS",
+      "aliases": ["rds", "managed relational database", "sql database"],
+      "tags": ["database", "sql", "transactions"],
+      "summary": "RDS is managed relational database infrastructure for workloads that benefit from SQL, joins, and transactional correctness.",
+      "key_points": [
+        "RDS reduces operational burden compared with self-managing database servers.",
+        "It is a strong fit for line-of-business systems and common transactional applications.",
+        "Read scaling and performance still require architectural decisions."
+      ],
+      "examples": [
+        "Support transactional business applications that rely on SQL and relational consistency.",
+        "Run traditional OLTP-style systems without self-managing the full database stack."
+      ],
+      "compare_to": ["aurora", "dynamodb"],
+      "pitfalls": [
+        "Assuming managed means no tuning or schema discipline.",
+        "Using read replicas for stale-sensitive workloads without acknowledging lag."
+      ],
+      "avoid_when": [
+        "Avoid RDS when the workload clearly needs large-scale non-relational access patterns."
+      ]
+    },
+    {
+      "id": "dynamodb",
+      "title": "Amazon DynamoDB",
+      "aliases": ["dynamodb", "nosql key value", "serverless database"],
+      "tags": ["database", "nosql", "low-latency"],
+      "summary": "DynamoDB is a managed key-value and document database for high-scale, low-latency access when access patterns are known upfront.",
+      "key_points": [
+        "Data modeling starts from access patterns and partition behavior, not normalized relational entities.",
+        "DynamoDB is built for predictable millisecond access at scale.",
+        "Good key design is the difference between success and hot-partition failure."
+      ],
+      "examples": [
+        "Store user sessions, carts, or application metadata at high scale.",
+        "Support event-driven systems that need fast, managed state access."
+      ],
+      "compare_to": ["rds", "aurora"],
+      "pitfalls": [
+        "Porting a relational schema directly into DynamoDB.",
+        "Ignoring partition-key distribution until production traffic exposes it."
+      ],
+      "avoid_when": [
+        "Avoid DynamoDB when ad hoc joins, flexible relational querying, or warehouse-style SQL dominate."
+      ]
+    },
+    {
+      "id": "neptune",
+      "title": "Amazon Neptune",
+      "aliases": ["neptune", "graph database"],
+      "tags": ["database", "graph", "relationships"],
+      "summary": "Neptune is a graph database for workloads where relationships and traversals are the primary query model.",
+      "key_points": [
+        "Graph databases shine when linked entities and multi-hop relationships are central.",
+        "Neptune is a better fit than relational or document models for relationship-heavy queries.",
+        "It is specialized and should be chosen only when graph behavior is truly core."
+      ],
+      "examples": [
+        "Model fraud link analysis, knowledge graphs, or recommendation relationships.",
+        "Support applications where traversing connections matters more than row-based transactions."
+      ],
+      "compare_to": ["rds", "dynamodb"],
+      "pitfalls": [
+        "Using a graph database for workloads that are really simple key-value or relational transactions.",
+        "Choosing a specialized engine before validating the query model."
+      ],
+      "avoid_when": [
+        "Avoid Neptune when relationships are not central to the access pattern."
+      ]
+    },
+    {
+      "id": "timestream",
+      "title": "Amazon Timestream",
+      "aliases": ["timestream", "time series database"],
+      "tags": ["database", "time-series", "metrics"],
+      "summary": "Timestream is a purpose-built time-series database for metrics, telemetry, and timestamp-driven event data.",
+      "key_points": [
+        "Timestream fits workloads where time windows, recency, and retention policies are central.",
+        "It is better than general-purpose databases when time-series query patterns dominate.",
+        "It is optimized for metrics and telemetry style access rather than generic transactions."
+      ],
+      "examples": [
+        "Store operational metrics, IoT readings, or timestamped telemetry.",
+        "Query recent and historical trends across time windows."
+      ],
+      "compare_to": ["cloudwatch", "dynamodb"],
+      "pitfalls": [
+        "Using a specialized time-series service for general application state.",
+        "Ignoring retention and aggregation strategy."
+      ],
+      "avoid_when": [
+        "Avoid Timestream when the workload is not fundamentally time-series in nature."
+      ]
+    },
+    {
+      "id": "networking-selection",
+      "title": "AWS Networking and Edge Selection",
+      "aliases": ["networking selection", "choose networking", "aws edge services"],
+      "tags": ["networking", "edge", "selection"],
+      "summary": "AWS networking choices shape isolation, traffic steering, and global delivery before application logic even runs.",
+      "key_points": [
+        "VPC is the foundational network boundary for most AWS architectures.",
+        "Route 53 handles DNS and traffic steering, not just domain resolution.",
+        "CloudFront improves global delivery and edge protection when users are geographically distributed."
+      ],
+      "examples": [
+        "Use Transit Gateway when many VPCs and on-premises networks need manageable connectivity.",
+        "Treat network design as a core architectural decision rather than infrastructure afterthought."
+      ],
+      "compare_to": ["vpc", "cloudfront", "route53"],
+      "pitfalls": [
+        "Delaying network design until after service choices are made.",
+        "Assuming DNS, CDN, and network isolation are interchangeable concerns."
+      ],
+      "avoid_when": [
+        "Avoid oversimplifying networking in multi-account, hybrid, or global systems."
+      ]
+    },
+    {
+      "id": "vpc",
+      "title": "Amazon VPC",
+      "aliases": ["vpc", "virtual private cloud", "network isolation"],
+      "tags": ["networking", "security", "foundation"],
+      "summary": "VPC provides the isolated networking foundation for AWS resources, including subnets, routing, and traffic control boundaries.",
+      "key_points": [
+        "VPC design influences security, connectivity, and availability from the start.",
+        "Subnet and routing structure affect how services communicate and how exposure is controlled.",
+        "Good VPC design supports later scaling and governance rather than constraining it."
+      ],
+      "examples": [
+        "Segment public-facing and internal workloads into different subnet patterns.",
+        "Establish network boundaries for multi-tier applications."
+      ],
+      "compare_to": ["route53", "cloudfront"],
+      "pitfalls": [
+        "Treating networking as a default setup rather than a deliberate design choice.",
+        "Creating overly complex network topology without clear segmentation goals."
+      ],
+      "avoid_when": [
+        "Avoid ad hoc VPC growth without clear routing and isolation standards."
+      ]
+    },
+    {
+      "id": "cloudfront",
+      "title": "Amazon CloudFront",
+      "aliases": ["cloudfront", "cdn", "edge delivery"],
+      "tags": ["networking", "edge", "performance"],
+      "summary": "CloudFront is a content delivery network for low-latency global delivery of static content, APIs, downloads, and media.",
+      "key_points": [
+        "CloudFront reduces latency for distributed users by serving content closer to them.",
+        "It can also improve origin protection and integrate with edge security controls.",
+        "It is valuable even for APIs when edge performance and protection matter."
+      ],
+      "examples": [
+        "Serve static assets and downloads globally.",
+        "Put CloudFront in front of web apps or APIs for edge caching and protection."
+      ],
+      "compare_to": ["route53", "vpc"],
+      "pitfalls": [
+        "Adding a CDN without understanding caching behavior and invalidation needs.",
+        "Assuming CloudFront replaces network design or DNS strategy."
+      ],
+      "avoid_when": [
+        "Avoid CloudFront when the workload gets no value from edge delivery or caching."
+      ]
+    },
+    {
+      "id": "route53",
+      "title": "Amazon Route 53",
+      "aliases": ["route 53", "route53", "dns", "traffic routing"],
+      "tags": ["networking", "dns", "routing"],
+      "summary": "Route 53 combines DNS with health checks and routing policies that help shape resilient traffic flow.",
+      "key_points": [
+        "Route 53 is more than domain hosting because routing policies affect resilience and latency outcomes.",
+        "It supports failover, weighted, and latency-aware routing patterns.",
+        "It is a control point for how users reach services globally."
+      ],
+      "examples": [
+        "Use failover routing to direct traffic away from unhealthy endpoints.",
+        "Steer users based on latency or weighted rollout strategies."
+      ],
+      "compare_to": ["cloudfront", "vpc"],
+      "pitfalls": [
+        "Thinking of DNS as static configuration rather than part of resilience design.",
+        "Ignoring health-check and failover behavior in recovery planning."
+      ],
+      "avoid_when": [
+        "Avoid simplistic DNS setup when the system needs explicit global traffic policies."
+      ]
+    },
+    {
+      "id": "iam",
+      "title": "AWS Identity and Access Management",
+      "aliases": ["iam", "identity and access management", "roles and policies"],
+      "tags": ["security", "identity", "authorization"],
+      "summary": "IAM is the core AWS authorization system for identities, roles, and least-privilege access control.",
+      "key_points": [
+        "IAM determines who can do what across AWS services.",
+        "Role-based access is foundational for secure service-to-service and human access design.",
+        "Identity design should be treated as architecture, not configuration cleanup."
+      ],
+      "examples": [
+        "Grant applications scoped access to specific AWS resources using roles.",
+        "Control human administration with least-privilege policy boundaries."
+      ],
+      "compare_to": ["kms", "cloudtrail"],
+      "pitfalls": [
+        "Starting with broad permissions and never tightening them.",
+        "Treating IAM as isolated from operational and security architecture."
+      ],
+      "avoid_when": [
+        "Avoid manual credential sprawl and long-lived broad access patterns."
+      ]
+    },
+    {
+      "id": "kms",
+      "title": "AWS Key Management Service",
+      "aliases": ["kms", "key management service", "encryption keys"],
+      "tags": ["security", "encryption", "governance"],
+      "summary": "KMS is the managed control point for encryption keys used across many AWS services.",
+      "key_points": [
+        "KMS reduces the need to build custom key-management infrastructure.",
+        "It integrates encryption governance into broader AWS architectures.",
+        "It is most useful when teams want encryption controls without operating dedicated key systems."
+      ],
+      "examples": [
+        "Control encryption for data stored in supported AWS services.",
+        "Apply managed cryptographic governance to application data paths."
+      ],
+      "compare_to": ["iam", "s3"],
+      "pitfalls": [
+        "Assuming encryption solves access control or data-classification problems by itself.",
+        "Treating key management as only a compliance checkbox."
+      ],
+      "avoid_when": [
+        "Avoid custom encryption-key sprawl when managed service integration already meets the need."
+      ]
+    },
+    {
+      "id": "cloudwatch",
+      "title": "Amazon CloudWatch",
+      "aliases": ["cloudwatch", "metrics", "logs", "alarms"],
+      "tags": ["operations", "observability", "monitoring"],
+      "summary": "CloudWatch is the core AWS observability layer for metrics, logs, alarms, and dashboards.",
+      "key_points": [
+        "CloudWatch provides the baseline operational visibility most AWS systems need.",
+        "Metrics and alarms support service health, capacity, and incident response workflows.",
+        "It is necessary but not always sufficient for deep distributed diagnostics."
+      ],
+      "examples": [
+        "Track API latency, instance health, or queue depth.",
+        "Raise alarms on thresholds that indicate failure or saturation."
+      ],
+      "compare_to": ["xray", "cloudtrail"],
+      "pitfalls": [
+        "Collecting telemetry without actionable alarms or dashboard design.",
+        "Expecting metrics and logs alone to explain distributed-request behavior."
+      ],
+      "avoid_when": [
+        "Avoid treating CloudWatch as the whole observability strategy when tracing or deeper correlation is needed."
+      ]
+    },
+    {
+      "id": "cloudtrail",
+      "title": "AWS CloudTrail",
+      "aliases": ["cloudtrail", "api audit logs", "account activity"],
+      "tags": ["operations", "security", "audit"],
+      "summary": "CloudTrail records AWS API activity and account events so teams can audit changes and investigate incidents.",
+      "key_points": [
+        "CloudTrail answers who changed what and when.",
+        "It is critical for governance, forensics, and compliance workflows.",
+        "It complements monitoring by focusing on control-plane activity rather than service health."
+      ],
+      "examples": [
+        "Investigate unexpected infrastructure changes or permission modifications.",
+        "Support audit evidence for operational and security reviews."
+      ],
+      "compare_to": ["cloudwatch", "iam"],
+      "pitfalls": [
+        "Assuming preventive controls remove the need for audit evidence.",
+        "Not planning how logs will be retained and reviewed."
+      ],
+      "avoid_when": [
+        "Avoid relying only on dashboards when auditability and investigation are required."
+      ]
+    },
+    {
+      "id": "xray",
+      "title": "AWS X-Ray",
+      "aliases": ["x-ray", "xray", "distributed tracing"],
+      "tags": ["operations", "tracing", "observability"],
+      "summary": "X-Ray helps trace requests across distributed systems so teams can understand latency and failure propagation end to end.",
+      "key_points": [
+        "Tracing complements logs and metrics by showing cross-service request paths.",
+        "It is especially useful in microservice and serverless architectures.",
+        "X-Ray is valuable when end-to-end latency diagnosis matters more than component-local symptoms."
+      ],
+      "examples": [
+        "Trace a user request across API, queue, and function boundaries.",
+        "Identify which downstream service contributes most to end-to-end latency."
+      ],
+      "compare_to": ["cloudwatch", "cloudtrail"],
+      "pitfalls": [
+        "Assuming logs alone can diagnose distributed latency issues.",
+        "Adding tracing without a plan for sampling and analysis."
+      ],
+      "avoid_when": [
+        "Avoid skipping tracing in architectures where requests cross many service boundaries."
+      ]
+    }
+  ]
+}
