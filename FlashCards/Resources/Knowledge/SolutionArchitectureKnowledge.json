@@ -1,0 +1,245 @@
+{
+  "deck_id": "solution-architecture",
+  "documents": [
+    {
+      "id": "requirements-gathering",
+      "title": "Requirements Gathering",
+      "aliases": ["discovery", "requirements discovery", "needs analysis"],
+      "tags": ["requirements", "discovery", "stakeholders"],
+      "summary": "Requirements gathering turns vague business intent into explicit functional, operational, and constraint-based decisions a delivery team can act on.",
+      "key_points": [
+        "Separate business outcomes, user needs, constraints, and assumptions early so architecture discussions stay grounded.",
+        "Non-functional requirements are often the real design drivers because they reshape cost, security, and resiliency choices.",
+        "Capture open questions explicitly so later design debates do not silently reopen discovery work."
+      ],
+      "examples": [
+        "Translate 'must scale globally' into traffic profile, latency targets, and data residency constraints.",
+        "Identify compliance, integration, and support boundaries before choosing a platform."
+      ],
+      "compare_to": ["tradeoff-analysis", "stakeholder-management"],
+      "pitfalls": [
+        "Letting stakeholder opinions stand in for measurable requirements.",
+        "Treating non-functional requirements as minor details that can be filled in later."
+      ],
+      "avoid_when": [
+        "Do not move into detailed solution design while core assumptions and constraints are still implicit."
+      ]
+    },
+    {
+      "id": "stakeholder-management",
+      "title": "Stakeholder Management",
+      "aliases": ["stakeholder alignment", "expectation management", "cross-team alignment"],
+      "tags": ["communication", "governance", "alignment"],
+      "summary": "Stakeholder management keeps architecture decisions aligned with the people who own outcomes, budgets, operations, and delivery risk.",
+      "key_points": [
+        "Different stakeholders optimize for different things: speed, compliance, cost, customer impact, or run support.",
+        "Architecture work stalls when decision-makers, influencers, and approvers are not separated clearly.",
+        "Good stakeholder management reduces late surprises more than it improves slide quality."
+      ],
+      "examples": [
+        "Map who signs off on security, cost, and operational support before solution review.",
+        "Frame the same architecture choice differently for finance, delivery, and platform teams."
+      ],
+      "compare_to": ["requirements-gathering", "design-reviews"],
+      "pitfalls": [
+        "Assuming the loudest stakeholder is the final decision-maker.",
+        "Presenting technical detail without clarifying business impact."
+      ],
+      "avoid_when": [
+        "Avoid treating stakeholder alignment as a presentation task instead of a decision-management task."
+      ]
+    },
+    {
+      "id": "tradeoff-analysis",
+      "title": "Tradeoff Analysis",
+      "aliases": ["decision framing", "option analysis", "architecture tradeoffs"],
+      "tags": ["decision-making", "architecture", "cost"],
+      "summary": "Tradeoff analysis compares credible options against the criteria that actually matter in the business and delivery context.",
+      "key_points": [
+        "Tradeoffs only become useful when criteria such as cost, speed, resiliency, skill fit, and lock-in are explicit.",
+        "A downside that seems small in build phase can dominate run cost and support burden later.",
+        "Rejecting an option is just as valuable as selecting one if the reason is clear."
+      ],
+      "examples": [
+        "Compare serverless and containers using latency, cost shape, and team skill fit.",
+        "Evaluate commercial products against in-house builds by including support and integration cost."
+      ],
+      "compare_to": ["buy-vs-build", "migration-strategy"],
+      "pitfalls": [
+        "Comparing options without a shared decision frame.",
+        "Optimizing only for initial delivery speed and ignoring long-term operating cost."
+      ],
+      "avoid_when": [
+        "Do not present every option as equally viable when several should be eliminated early."
+      ]
+    },
+    {
+      "id": "migration-strategy",
+      "title": "Migration Strategy",
+      "aliases": ["modernization plan", "cutover strategy", "transition architecture"],
+      "tags": ["migration", "risk", "delivery"],
+      "summary": "Migration strategy defines how to move from current state to future state while controlling business disruption, technical risk, and operational complexity.",
+      "key_points": [
+        "Phased migration reduces blast radius but creates temporary coexistence and reconciliation complexity.",
+        "Big-bang migration simplifies architecture shape but concentrates risk into the cutover window.",
+        "Rollback, data migration, and support readiness usually matter more than the target-state diagram."
+      ],
+      "examples": [
+        "Run parallel systems until data reconciliation confidence is high enough for cutover.",
+        "Carve out a bounded capability behind a stable API rather than moving everything at once."
+      ],
+      "compare_to": ["operational-readiness", "current-state-future-state"],
+      "pitfalls": [
+        "Underestimating data quality issues and hidden integration dependencies.",
+        "Planning cutover without clear rollback criteria."
+      ],
+      "avoid_when": [
+        "Avoid large simultaneous migrations when business continuity is sensitive and rollback is weak."
+      ]
+    },
+    {
+      "id": "buy-vs-build",
+      "title": "Buy vs Build",
+      "aliases": ["vendor evaluation", "build or buy", "platform selection"],
+      "tags": ["procurement", "platform", "strategy"],
+      "summary": "Buy-vs-build decisions should weigh business differentiation against delivery speed, integration effort, and long-term operating cost.",
+      "key_points": [
+        "Buy commodity capabilities unless control, differentiation, or constraints make that a poor fit.",
+        "Build when the capability is strategically unique or vendor fit introduces unacceptable dependency cost.",
+        "License price is rarely the full cost; governance, adaptation, and run ownership are usually larger."
+      ],
+      "examples": [
+        "Buy identity or observability tooling to accelerate delivery of non-differentiating capabilities.",
+        "Build custom workflow orchestration when domain rules create real competitive advantage."
+      ],
+      "compare_to": ["tradeoff-analysis", "cost-optimization"],
+      "pitfalls": [
+        "Choosing a product from demos without validating integration and exit costs.",
+        "Building internally because the team prefers it, not because the business benefits."
+      ],
+      "avoid_when": [
+        "Avoid custom builds for undifferentiated capabilities with mature market options."
+      ]
+    },
+    {
+      "id": "reference-architecture",
+      "title": "Reference Architecture",
+      "aliases": ["reference design", "target pattern", "architecture baseline"],
+      "tags": ["patterns", "governance", "design"],
+      "summary": "Reference architecture gives teams a reusable pattern baseline so common solution decisions do not start from scratch every time.",
+      "key_points": [
+        "A reference architecture should guide decisions, not freeze every implementation detail.",
+        "It helps consistency across teams by clarifying approved patterns for identity, networking, data, and observability.",
+        "Good reference architectures evolve with delivery feedback instead of becoming static compliance art."
+      ],
+      "examples": [
+        "Publish a standard integration pattern for APIs, eventing, and secrets management.",
+        "Use reference architectures to speed early solution framing for repeated workloads."
+      ],
+      "compare_to": ["governance", "design-reviews"],
+      "pitfalls": [
+        "Making reference architecture so rigid that it blocks legitimate context-specific design.",
+        "Letting patterns age without reflecting what teams actually deploy."
+      ],
+      "avoid_when": [
+        "Avoid presenting reference patterns as mandatory if the context clearly needs an exception."
+      ]
+    },
+    {
+      "id": "security-by-design",
+      "title": "Security by Design",
+      "aliases": ["secure by design", "shift-left security", "security architecture"],
+      "tags": ["security", "risk", "governance"],
+      "summary": "Security by design means integrating identity, data protection, segmentation, and threat thinking into the architecture from the start.",
+      "key_points": [
+        "Security controls are easier to implement and cheaper to maintain when they are part of the initial design shape.",
+        "Identity, secrets, logging, and network boundaries are architectural concerns, not post-build hardening tasks.",
+        "The goal is risk reduction aligned to the business context, not generic control accumulation."
+      ],
+      "examples": [
+        "Define trust boundaries, encryption, and audit needs during solution framing.",
+        "Design least-privilege service access and operational logging before implementation."
+      ],
+      "compare_to": ["failure-mode-thinking", "operational-readiness"],
+      "pitfalls": [
+        "Treating security review as a gate after the design is already fixed.",
+        "Adding controls that do not map to actual business or threat priorities."
+      ],
+      "avoid_when": [
+        "Do not assume managed services eliminate the need for security architecture decisions."
+      ]
+    },
+    {
+      "id": "cost-optimization",
+      "title": "Cost Optimization",
+      "aliases": ["finops", "run cost", "cost control"],
+      "tags": ["cost", "operations", "tradeoffs"],
+      "summary": "Cost optimization is the discipline of matching architecture choices to actual value, load shape, and operational efficiency.",
+      "key_points": [
+        "The cheapest design on day one is often not the cheapest design under real traffic and support conditions.",
+        "Fixed versus variable cost shape matters as much as total estimated spend.",
+        "Good cost optimization protects business outcomes without silently undercutting resilience or delivery speed."
+      ],
+      "examples": [
+        "Compare always-on clusters with serverless options based on steady versus bursty demand.",
+        "Use cost telemetry to decide whether convenience features are worth their operational savings."
+      ],
+      "compare_to": ["tradeoff-analysis", "buy-vs-build"],
+      "pitfalls": [
+        "Optimizing spend by removing reliability controls the business actually depends on.",
+        "Ignoring observability and support cost when comparing platform options."
+      ],
+      "avoid_when": [
+        "Avoid treating infrastructure unit price as the only architecture cost metric."
+      ]
+    },
+    {
+      "id": "operational-readiness",
+      "title": "Operational Readiness",
+      "aliases": ["run readiness", "go-live readiness", "ops readiness"],
+      "tags": ["operations", "handoff", "resilience"],
+      "summary": "Operational readiness ensures a solution can be observed, supported, recovered, and governed before it faces production pressure.",
+      "key_points": [
+        "A solution is not ready if alerting, runbooks, ownership, and recovery procedures are undefined.",
+        "Readiness should include support handoff, capacity assumptions, access review, and incident response expectations.",
+        "Managed services reduce toil but do not remove the need for run design."
+      ],
+      "examples": [
+        "Define dashboards, on-call ownership, rollback steps, and access boundaries before launch.",
+        "Validate backup and restore by testing the restore path, not just configuring backups."
+      ],
+      "compare_to": ["migration-strategy", "security-by-design"],
+      "pitfalls": [
+        "Treating go-live as a code-complete milestone instead of a run-readiness milestone.",
+        "Shipping without clear ownership for incidents and change control."
+      ],
+      "avoid_when": [
+        "Do not assume platform teams will fill operational gaps that the solution never defined."
+      ]
+    },
+    {
+      "id": "failure-mode-thinking",
+      "title": "Failure Mode Thinking",
+      "aliases": ["failure analysis", "resilience thinking", "what breaks first"],
+      "tags": ["risk", "resilience", "architecture"],
+      "summary": "Failure mode thinking asks how the solution breaks under stress, dependency loss, bad data, human error, and partial outages before those conditions occur in production.",
+      "key_points": [
+        "Architects should identify likely failure paths and decide which ones deserve prevention, mitigation, or graceful degradation.",
+        "Many incidents come from dependency behavior, operational mistakes, or untested assumptions rather than core business logic.",
+        "Thinking about failure early usually improves observability and recovery design too."
+      ],
+      "examples": [
+        "Model what happens if an identity provider, queue, or downstream API becomes slow or unavailable.",
+        "Test whether retries, timeouts, and circuit breakers protect the system or amplify failure."
+      ],
+      "compare_to": ["operational-readiness", "security-by-design"],
+      "pitfalls": [
+        "Optimizing only for the happy path and leaving degradation behavior undefined.",
+        "Adding retries everywhere and accidentally increasing load during failure."
+      ],
+      "avoid_when": [
+        "Do not rely on high-availability claims from vendors without understanding actual failure boundaries."
+      ]
+    }
+  ]
+}

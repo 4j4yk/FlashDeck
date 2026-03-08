@@ -1,0 +1,245 @@
+{
+  "deck_id": "system-design",
+  "documents": [
+    {
+      "id": "scalability",
+      "title": "Scalability",
+      "aliases": ["horizontal scaling", "vertical scaling", "scale out"],
+      "tags": ["scaling", "capacity", "system-design"],
+      "summary": "Scalability is the ability of a system to handle more load by adding capacity without unacceptable cost, complexity, or reliability loss.",
+      "key_points": [
+        "Horizontal scaling improves elasticity and fault isolation but introduces coordination and data-distribution costs.",
+        "Vertical scaling is simpler to reason about but eventually hits hardware, failover, and cost ceilings.",
+        "Scaling decisions should start from the actual bottleneck: compute, storage, network, coordination, or external dependency limits."
+      ],
+      "examples": [
+        "Add stateless app replicas behind a load balancer when request volume grows.",
+        "Split read-heavy and write-heavy paths so each tier can scale independently."
+      ],
+      "compare_to": ["load-balancing", "sharding"],
+      "pitfalls": [
+        "Scaling one component while leaving the real bottleneck untouched.",
+        "Assuming more nodes automatically improve performance when contention dominates."
+      ],
+      "avoid_when": [
+        "Avoid distributed complexity before you have measured where growth pressure actually lands."
+      ]
+    },
+    {
+      "id": "load-balancing",
+      "title": "Load Balancing",
+      "aliases": ["load balancer", "traffic distribution", "request routing"],
+      "tags": ["availability", "routing", "traffic"],
+      "summary": "Load balancing distributes traffic across healthy resources to improve utilization, availability, and operational flexibility.",
+      "key_points": [
+        "Good health checks and connection handling usually matter more than the balancing algorithm itself.",
+        "Load balancers decouple clients from backend topology so instances can be replaced or scaled transparently.",
+        "Session affinity can simplify some flows, but it weakens even distribution and can create hot spots."
+      ],
+      "examples": [
+        "Place multiple API replicas behind an ALB or reverse proxy tier.",
+        "Route traffic away from unhealthy instances during autoscaling or deployment."
+      ],
+      "compare_to": ["rate-limiting", "high-availability"],
+      "pitfalls": [
+        "Sending traffic to weak or partially failing instances because health checks are too shallow.",
+        "Using sticky sessions as a shortcut for state management."
+      ],
+      "avoid_when": [
+        "Do not treat a load balancer as the solution to slow backends or poor capacity planning."
+      ]
+    },
+    {
+      "id": "caching",
+      "title": "Caching",
+      "aliases": ["cache", "cache-aside", "read cache"],
+      "tags": ["latency", "throughput", "performance"],
+      "summary": "Caching reduces latency and backend pressure by storing frequently reused data closer to the read path.",
+      "key_points": [
+        "Pick the cache layer by scope: browser, CDN, application, or data tier.",
+        "The core tradeoff is freshness versus speed, so stale-read tolerance must be explicit.",
+        "A healthy miss path matters because caches fail, expire, and warm up under load."
+      ],
+      "examples": [
+        "Use Redis for hot product reads with cache-aside loading.",
+        "Push semi-static assets and responses to a CDN to reduce origin load."
+      ],
+      "compare_to": ["eventual-consistency", "cdn"],
+      "pitfalls": [
+        "Caching without invalidation or TTL strategy.",
+        "Creating cache stampedes when many requests repopulate the same key together."
+      ],
+      "avoid_when": [
+        "Avoid caching data whose correctness requirement is stricter than your invalidation model."
+      ]
+    },
+    {
+      "id": "database-replication",
+      "title": "Database Replication",
+      "aliases": ["replication", "primary replica", "read replicas"],
+      "tags": ["databases", "replication", "availability"],
+      "summary": "Replication copies data across nodes to improve read scale, durability, and recovery posture, but it introduces lag and failover complexity.",
+      "key_points": [
+        "Synchronous replication improves durability and consistency but increases write latency.",
+        "Asynchronous replication improves performance and distance tolerance but can expose stale reads or data loss windows.",
+        "Read replicas help read scale, not write bottlenecks."
+      ],
+      "examples": [
+        "Use follower replicas for reporting or read-heavy traffic.",
+        "Replicate across zones or regions to support recovery goals."
+      ],
+      "compare_to": ["eventual-consistency", "high-availability"],
+      "pitfalls": [
+        "Routing freshness-sensitive reads to lagging replicas.",
+        "Calling a replicated system highly available without validating failover behavior."
+      ],
+      "avoid_when": [
+        "Avoid replica reads for workflows that require immediate read-after-write correctness."
+      ]
+    },
+    {
+      "id": "sharding",
+      "title": "Sharding",
+      "aliases": ["data sharding", "partition by key", "distributed partitioning"],
+      "tags": ["databases", "scaling", "partitioning"],
+      "summary": "Sharding spreads data across multiple nodes so storage and traffic scale beyond a single machine boundary.",
+      "key_points": [
+        "Shard keys decide both scale quality and operational pain, so they must align with dominant access patterns.",
+        "Sharding improves capacity but increases cross-shard query, transaction, and rebalance complexity.",
+        "Uneven key distribution creates hot shards and defeats the point of partitioning."
+      ],
+      "examples": [
+        "Partition tenants by customer id or user id for horizontal growth.",
+        "Spread writes across logical ranges or hashes to avoid a single primary bottleneck."
+      ],
+      "compare_to": ["database-replication", "scalability"],
+      "pitfalls": [
+        "Choosing a shard key that is convenient for storage but terrible for traffic distribution.",
+        "Ignoring resharding cost until growth makes the first partitioning plan obsolete."
+      ],
+      "avoid_when": [
+        "Avoid sharding before simpler options such as indexing, caching, or vertical scaling are exhausted."
+      ]
+    },
+    {
+      "id": "queues-and-pubsub",
+      "title": "Queues and Pub/Sub",
+      "aliases": ["messaging patterns", "queue", "pub sub"],
+      "tags": ["messaging", "asynchronous", "integration"],
+      "summary": "Queues decouple producers and consumers over time, while pub/sub decouples them across multiple subscribers.",
+      "key_points": [
+        "Queues are for buffered work distribution and backpressure absorption.",
+        "Pub/sub is for fan-out when one event should reach multiple downstream systems independently.",
+        "Message ordering, retry behavior, and idempotency must be designed rather than assumed."
+      ],
+      "examples": [
+        "Place order-processing work onto a queue so spikes do not overload the payment service.",
+        "Publish an account-created event to analytics, notifications, and CRM consumers."
+      ],
+      "compare_to": ["event-driven-architecture", "backpressure"],
+      "pitfalls": [
+        "Treating a queue like guaranteed business completion instead of work handoff.",
+        "Ignoring duplicate delivery and poison-message handling."
+      ],
+      "avoid_when": [
+        "Avoid asynchronous messaging when the workflow requires immediate user-visible confirmation from every downstream step."
+      ]
+    },
+    {
+      "id": "event-driven-architecture",
+      "title": "Event-Driven Architecture",
+      "aliases": ["eda", "domain events", "event-based systems"],
+      "tags": ["events", "decoupling", "architecture"],
+      "summary": "Event-driven architecture uses emitted facts about state changes to decouple producers from downstream reactions.",
+      "key_points": [
+        "Events help scale independent consumers and reduce direct coupling between services.",
+        "The tradeoff is more eventual consistency, tracing complexity, and schema-governance responsibility.",
+        "Event contracts and ownership matter as much as the broker technology."
+      ],
+      "examples": [
+        "Emit user-signup events that trigger onboarding, analytics, and fraud checks independently.",
+        "Publish inventory-updated events so read models and downstream projections refresh asynchronously."
+      ],
+      "compare_to": ["queues-and-pubsub", "microservices"],
+      "pitfalls": [
+        "Using events everywhere without clarifying which service owns the source-of-truth state.",
+        "Letting event schemas drift without versioning rules."
+      ],
+      "avoid_when": [
+        "Avoid event-driven fan-out for simple workflows that are easier to understand as direct synchronous calls."
+      ]
+    },
+    {
+      "id": "observability",
+      "title": "Observability",
+      "aliases": ["monitoring", "logging", "tracing"],
+      "tags": ["operations", "monitoring", "debugging"],
+      "summary": "Observability is the ability to infer system behavior from outputs such as metrics, logs, traces, and events.",
+      "key_points": [
+        "Metrics show system health trends, logs explain local behavior, and traces connect end-to-end request flow.",
+        "Observability is essential because distributed failures often emerge from interactions rather than single-service errors.",
+        "The goal is actionable diagnosis, not maximum telemetry volume."
+      ],
+      "examples": [
+        "Use traces to find which downstream call dominates latency.",
+        "Set SLO-aligned alerts on saturation, errors, and latency rather than infrastructure noise."
+      ],
+      "compare_to": ["slos-slas-slis", "backpressure"],
+      "pitfalls": [
+        "Collecting data without ownership, dashboards, or alert thresholds.",
+        "Relying only on logs in a distributed system where request flow spans many services."
+      ],
+      "avoid_when": [
+        "Do not postpone observability until after launch if the system will be multi-service or high-volume."
+      ]
+    },
+    {
+      "id": "zero-downtime-deployments",
+      "title": "Zero Downtime Deployments",
+      "aliases": ["blue green", "canary", "rolling deploys"],
+      "tags": ["deployments", "availability", "release-engineering"],
+      "summary": "Zero-downtime deployment patterns reduce user disruption by shifting traffic gradually or safely between old and new versions.",
+      "key_points": [
+        "Blue-green favors clean rollback by switching traffic between two environments.",
+        "Canary favors risk reduction by exposing a small percentage of traffic first and expanding when healthy.",
+        "Deployment safety depends on compatibility, health checks, and rollback signals, not just the routing pattern."
+      ],
+      "examples": [
+        "Send 5 percent of traffic to the new build before full rollout.",
+        "Keep the old environment ready while validating the new one under production traffic."
+      ],
+      "compare_to": ["load-balancing", "high-availability"],
+      "pitfalls": [
+        "Calling a rollout safe when database changes are not backward-compatible.",
+        "Skipping automated rollback conditions and relying on manual reaction time."
+      ],
+      "avoid_when": [
+        "Avoid progressive rollout patterns without instrumentation strong enough to detect regressions quickly."
+      ]
+    },
+    {
+      "id": "slos-slas-slis",
+      "title": "SLO, SLA, and SLI",
+      "aliases": ["slo", "sla", "sli", "service reliability targets"],
+      "tags": ["reliability", "metrics", "operations"],
+      "summary": "SLIs measure service behavior, SLOs define internal reliability targets, and SLAs define external commitments with business consequences.",
+      "key_points": [
+        "SLIs should measure the user-facing behavior that actually matters, such as latency, availability, or freshness.",
+        "SLOs guide engineering tradeoffs and alerting thresholds before legal or contractual promises are involved.",
+        "Error budgets translate reliability targets into release and risk decisions."
+      ],
+      "examples": [
+        "Track successful request rate and p95 latency as reliability indicators.",
+        "Pause risky releases when the service is burning through its error budget."
+      ],
+      "compare_to": ["observability", "high-availability"],
+      "pitfalls": [
+        "Choosing metrics that are easy to collect but disconnected from user experience.",
+        "Confusing an internal target with a contractual commitment."
+      ],
+      "avoid_when": [
+        "Do not define reliability promises without instrumentation that can actually measure them."
+      ]
+    }
+  ]
+}
