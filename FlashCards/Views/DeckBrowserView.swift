@@ -4,7 +4,7 @@ struct DeckBrowserView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
     @EnvironmentObject private var reviewStore: ReviewStore
 
-    let deckID: DeckCategory
+    let deckID: String
 
     @State private var searchText = ""
     @State private var isSelecting = false
@@ -15,13 +15,25 @@ struct DeckBrowserView: View {
         appViewModel.deck(for: deckID)
     }
 
+    private var deckCategory: DeckCategory {
+        deck?.category ?? .custom
+    }
+
     private var cards: [FlashCard] {
         appViewModel.cards(for: deckID, searchText: searchText)
     }
 
+    private var visibleCardIDs: Set<String> {
+        Set(cards.map(\.id))
+    }
+
+    private var visibleSelectedIDs: Set<String> {
+        selectedIDs.intersection(visibleCardIDs)
+    }
+
     var body: some View {
         ZStack {
-            AppBackground(accentDeck: deckID)
+            AppBackground(accentDeck: deckCategory)
 
             if let deck {
                 List {
@@ -43,17 +55,24 @@ struct DeckBrowserView: View {
                         .listRowSeparator(.hidden)
                     } else {
                         ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
-                            row(for: card, index: index, studyCards: cards)
-                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(reviewStore.isMarked(card.id) ? "Unmark" : "Mark") {
-                                        reviewStore.toggle(card.id)
-                                        Haptics.selection()
+                            if isSelecting {
+                                row(for: card, index: index, studyCards: cards)
+                                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
+                            } else {
+                                row(for: card, index: index, studyCards: cards)
+                                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(reviewStore.isMarked(card.id) ? "Unmark" : "Mark") {
+                                            reviewStore.toggle(card.id)
+                                            Haptics.selection()
+                                        }
+                                        .tint(reviewStore.isMarked(card.id) ? .gray : AppTheme.accentColor(for: deckCategory))
                                     }
-                                    .tint(reviewStore.isMarked(card.id) ? .gray : AppTheme.accentColor(for: deckID))
-                                }
+                            }
                         }
                     }
                 }
@@ -64,9 +83,10 @@ struct DeckBrowserView: View {
         .navigationTitle(deck?.title ?? "Deck")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search cards")
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                if cards.isEmpty == false {
+                if cards.isEmpty == false, isSelecting == false {
                     Menu {
                         ForEach(StudyMode.allCases) { mode in
                             let session = studySession(for: mode)
@@ -84,18 +104,20 @@ struct DeckBrowserView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                Button(isSelecting ? "Done" : "Select") {
-                    withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-                        isSelecting.toggle()
-                        if isSelecting == false {
-                            selectedIDs.removeAll()
+                if isSelecting || cards.isEmpty == false {
+                    Button(isSelecting ? "Done" : "Select") {
+                        withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                            isSelecting.toggle()
+                            if isSelecting == false {
+                                selectedIDs.removeAll()
+                            }
                         }
                     }
                 }
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                if isSelecting, selectedIDs.isEmpty == false {
+                if isSelecting, visibleSelectedIDs.isEmpty == false {
                     Button(batchActionTitle) {
                         applyBatchAction()
                     }
@@ -104,6 +126,9 @@ struct DeckBrowserView: View {
         }
         .onAppear {
             appViewModel.setLastOpenedDeck(deckID)
+        }
+        .onChange(of: cards.map(\.id)) { _, _ in
+            reconcileSelection()
         }
         .navigationDestination(item: $selectedSession) { session in
             StudyView(session: session)
@@ -118,7 +143,7 @@ struct DeckBrowserView: View {
             } label: {
                 CardRowView(
                     card: card,
-                    accentDeck: deckID,
+                    accentDeck: deckCategory,
                     isSelecting: true,
                     isSelected: selectedIDs.contains(card.id)
                 )
@@ -129,17 +154,17 @@ struct DeckBrowserView: View {
                 NavigationLink {
                     StudyView(session: session)
                 } label: {
-                    CardRowView(card: card, accentDeck: deckID)
+                    CardRowView(card: card, accentDeck: deckCategory)
                 }
                 .buttonStyle(.plain)
             } else {
-                CardRowView(card: card, accentDeck: deckID)
+                CardRowView(card: card, accentDeck: deckCategory)
             }
         }
     }
 
     private var batchActionTitle: String {
-        let selectedCards = cards.filter { selectedIDs.contains($0.id) }
+        let selectedCards = cards.filter { visibleSelectedIDs.contains($0.id) }
         let shouldMark = selectedCards.contains(where: { reviewStore.isMarked($0.id) == false })
         return shouldMark ? "Mark" : "Unmark"
     }
@@ -154,9 +179,14 @@ struct DeckBrowserView: View {
     }
 
     private func applyBatchAction() {
-        let ids = Array(selectedIDs)
+        let ids = Array(visibleSelectedIDs)
+        guard ids.isEmpty == false else {
+            reconcileSelection()
+            return
+        }
+
         let shouldMark = cards
-            .filter { selectedIDs.contains($0.id) }
+            .filter { visibleSelectedIDs.contains($0.id) }
             .contains(where: { reviewStore.isMarked($0.id) == false })
 
         if shouldMark {
@@ -168,6 +198,10 @@ struct DeckBrowserView: View {
         Haptics.success()
         selectedIDs.removeAll()
         isSelecting = false
+    }
+
+    private func reconcileSelection() {
+        selectedIDs = visibleSelectedIDs
     }
 
     private func studySession(
@@ -194,6 +228,7 @@ struct DeckBrowserView: View {
         return StudySession(
             deckID: deckID,
             deckTitle: deck?.title ?? "Deck",
+            deckCategory: deckCategory,
             mode: mode,
             cards: sessionCards,
             startIndex: min(max(startIndex, 0), max(sessionCards.count - 1, 0))
@@ -246,7 +281,7 @@ struct DeckBrowserView: View {
         .padding(22)
         .background(
             RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
-                .fill(AppTheme.gradient(for: deckID))
+                .fill(AppTheme.gradient(for: deck.category))
                 .overlay(alignment: .topTrailing) {
                     Circle()
                         .fill(Color.white.opacity(0.14))
@@ -279,7 +314,7 @@ struct DeckBrowserView_Previews: PreviewProvider {
         let appViewModel = AppViewModel(reviewStore: reviewStore)
 
         return NavigationStack {
-            DeckBrowserView(deckID: .systemDesign)
+            DeckBrowserView(deckID: DeckCategory.systemDesign.rawValue)
                 .environmentObject(reviewStore)
                 .environmentObject(appViewModel)
         }
