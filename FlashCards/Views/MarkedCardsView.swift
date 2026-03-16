@@ -12,6 +12,14 @@ struct MarkedCardsView: View {
         appViewModel.markedSections(searchText: searchText)
     }
 
+    private var visibleCardIDs: Set<String> {
+        Set(sections.flatMap(\.cards).map(\.id))
+    }
+
+    private var visibleSelectedIDs: Set<String> {
+        selectedIDs.intersection(visibleCardIDs)
+    }
+
     private var hasSearchText: Bool {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
     }
@@ -55,16 +63,23 @@ struct MarkedCardsView: View {
                     ForEach(sections) { section in
                         Section(section.deck.title) {
                             ForEach(Array(section.cards.enumerated()), id: \.element.id) { index, card in
-                                row(for: card, deck: section.deck, cards: section.cards, index: index)
-                                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button("Unmark", role: .destructive) {
-                                            reviewStore.unmark(card.id)
-                                            Haptics.selection()
+                                if isSelecting {
+                                    row(for: card, deck: section.deck, cards: section.cards, index: index)
+                                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
+                                        .listRowBackground(Color.clear)
+                                        .listRowSeparator(.hidden)
+                                } else {
+                                    row(for: card, deck: section.deck, cards: section.cards, index: index)
+                                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0))
+                                        .listRowBackground(Color.clear)
+                                        .listRowSeparator(.hidden)
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                            Button("Unmark", role: .destructive) {
+                                                reviewStore.unmark(card.id)
+                                                Haptics.selection()
+                                            }
                                         }
-                                    }
+                                }
                             }
                         }
                         .textCase(nil)
@@ -72,6 +87,9 @@ struct MarkedCardsView: View {
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: AppTheme.rootTabBarClearance)
+                }
             }
         }
         .navigationTitle("Marked")
@@ -79,7 +97,7 @@ struct MarkedCardsView: View {
         .searchable(text: $searchText, prompt: "Search marked cards")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if sections.isEmpty == false {
+                if isSelecting || sections.isEmpty == false {
                     Button(isSelecting ? "Done" : "Select") {
                         withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
                             isSelecting.toggle()
@@ -92,15 +110,18 @@ struct MarkedCardsView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                if isSelecting, selectedIDs.isEmpty == false {
+                if isSelecting, visibleSelectedIDs.isEmpty == false {
                     Button("Unmark") {
-                        reviewStore.unmarkMany(Array(selectedIDs))
+                        reviewStore.unmarkMany(Array(visibleSelectedIDs))
                         selectedIDs.removeAll()
                         isSelecting = false
                         Haptics.success()
                     }
                 }
             }
+        }
+        .onChange(of: sections.flatMap(\.cards).map(\.id)) { _, _ in
+            reconcileSelection()
         }
     }
 
@@ -112,7 +133,7 @@ struct MarkedCardsView: View {
             } label: {
                 CardRowView(
                     card: card,
-                    accentDeck: deck.id,
+                    accentDeck: deck.category,
                     isSelecting: true,
                     isSelected: selectedIDs.contains(card.id)
                 )
@@ -124,13 +145,14 @@ struct MarkedCardsView: View {
                     session: StudySession(
                         deckID: deck.id,
                         deckTitle: deck.title,
+                        deckCategory: deck.category,
                         mode: .onlyMarked,
                         cards: cards,
                         startIndex: index
                     )
                 )
             } label: {
-                CardRowView(card: card, accentDeck: deck.id)
+                CardRowView(card: card, accentDeck: deck.category)
             }
             .buttonStyle(.plain)
         }
@@ -187,6 +209,10 @@ struct MarkedCardsView: View {
             selectedIDs.insert(cardID)
         }
         Haptics.selection()
+    }
+
+    private func reconcileSelection() {
+        selectedIDs = visibleSelectedIDs
     }
 }
 

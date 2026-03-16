@@ -4,15 +4,20 @@ struct StudyView: View {
     @EnvironmentObject private var reviewStore: ReviewStore
 
     let session: StudySession
+    private let cardAssistService: any CardAssistService
 
     @State private var currentIndex: Int
     @State private var orderedCards: [FlashCard]
     @State private var isFlipped = false
     @State private var isShuffled = false
     @State private var dragOffset: CGFloat = 0
+    @State private var assistPresentation: AssistPresentation?
+    @State private var assistSheetPresentation: AssistPresentation?
+    @State private var assistTask: Task<Void, Never>?
 
-    init(session: StudySession) {
+    init(session: StudySession, cardAssistService: any CardAssistService = GroundedCardAssistService.shared) {
         self.session = session
+        self.cardAssistService = cardAssistService
         let clampedIndex = min(max(session.startIndex, 0), max(session.cards.count - 1, 0))
         _currentIndex = State(initialValue: clampedIndex)
         _orderedCards = State(initialValue: session.cards)
@@ -51,15 +56,16 @@ struct StudyView: View {
 
     var body: some View {
         ZStack {
-            AppBackground(accentDeck: session.deckID)
+            AppBackground(accentDeck: session.deckCategory)
 
             if let currentCard {
                 VStack(spacing: 22) {
                     header
+                    assistPanel
 
                     FlipFlashCardView(
                         card: currentCard,
-                        deckID: session.deckID,
+                        deckID: session.deckCategory,
                         isMarked: reviewStore.isMarked(currentCard.id),
                         onToggle: toggleCardFace,
                         isFlipped: $isFlipped
@@ -74,7 +80,7 @@ struct StudyView: View {
                     .highPriorityGesture(dragGesture)
                     .padding(.horizontal, 20)
 
-                    controls(for: currentCard)
+                    reviewButton(for: currentCard)
                 }
                 .padding(.top, 16)
                 .padding(.bottom, 30)
@@ -89,15 +95,41 @@ struct StudyView: View {
         }
         .navigationTitle(session.deckTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    toggleShuffle()
-                } label: {
-                    Image(systemName: isShuffled ? "shuffle.circle.fill" : "shuffle.circle")
+                if orderedCards.count > 1 {
+                    Button {
+                        toggleShuffle()
+                    } label: {
+                        Image(systemName: isShuffled ? "shuffle.circle.fill" : "shuffle.circle")
+                    }
+                    .accessibilityLabel(isShuffled ? "Disable shuffle" : "Enable shuffle")
                 }
-                .accessibilityLabel(isShuffled ? "Disable shuffle" : "Enable shuffle")
             }
+        }
+        .sheet(isPresented: assistSheetIsPresented) {
+            if let assistSheetPresentation {
+                NavigationStack {
+                    AssistPanelView(presentation: assistSheetPresentation)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Done") {
+                                    self.assistSheetPresentation = nil
+                                }
+                            }
+                        }
+                }
+                .presentationDetents([.medium, .large])
+            }
+        }
+        .onChange(of: currentCard?.id) { _, _ in
+            assistTask?.cancel()
+            assistPresentation = nil
+            assistSheetPresentation = nil
+        }
+        .onDisappear {
+            assistTask?.cancel()
         }
     }
 
@@ -109,11 +141,11 @@ struct StudyView: View {
                         .font(.system(.caption2, design: .rounded).weight(.bold))
                         .foregroundStyle(AppTheme.tertiaryText)
 
-                    Text(session.deckTitle)
-                        .font(.system(size: 29, weight: .bold, design: .rounded))
+                    Text(session.mode.detailText(cardCount: orderedCards.count))
+                        .font(.system(size: 23, weight: .bold, design: .rounded))
                         .foregroundStyle(AppTheme.primaryText)
 
-                    Text(session.mode.detailText(cardCount: orderedCards.count))
+                    Text("Tap the card to flip. Swipe sideways to move.")
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(AppTheme.secondaryText)
                 }
@@ -155,7 +187,7 @@ struct StudyView: View {
                         )
 
                     Capsule()
-                        .fill(AppTheme.gradient(for: session.deckID))
+                        .fill(AppTheme.gradient(for: session.deckCategory))
                         .frame(width: progressWidth(totalWidth: proxy.size.width))
                 }
             }
@@ -167,76 +199,159 @@ struct StudyView: View {
         .padding(.horizontal, 20)
     }
 
-    private func controls(for card: FlashCard) -> some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 14) {
-                circularButton(symbolName: "chevron.left", isEnabled: canMoveBackward) {
-                    movePrevious()
+    private var assistPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(CardAssistAction.allCases) { action in
+                        Button {
+                            presentAssist(action)
+                        } label: {
+                            Label(action.title, systemImage: action.systemImage)
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(AppTheme.primaryText)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .background(
+                                    Capsule()
+                                        .fill(AppTheme.surfaceGradient)
+                                )
+                                .overlay(
+                                    Capsule()
+                                        .stroke(AppTheme.outlineGradient, lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(action.title)
+                        .accessibilityHint("Uses local deck knowledge for the current card.")
+                    }
                 }
-                .accessibilityLabel("Previous card")
-                .accessibilityHint("Moves to the previous card in this session.")
+                .padding(.horizontal, 1)
+            }
+            .scrollClipDisabled()
 
-                Button {
-                    toggleCardFace()
-                } label: {
-                    Label(isFlipped ? "Question" : "Answer", systemImage: "arrow.triangle.2.circlepath")
-                        .font(.system(.headline, design: .rounded).weight(.semibold))
-                        .foregroundStyle(AppTheme.primaryText)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .fill(AppTheme.surfaceGradient)
-                        )
+            switch assistPresentation?.state {
+            case .loading:
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .controlSize(.small)
+
+                    Text("Grounding help from local deck knowledge.")
+                        .font(.system(.footnote, design: .rounded))
+                        .foregroundStyle(AppTheme.secondaryText)
+                }
+
+            case let .response(response):
+                HStack(spacing: 10) {
+                    Text(response.groundingLabel.uppercased())
+                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                        .foregroundStyle(AppTheme.tertiaryText)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 6)
+                        .background(AppTheme.secondarySurface, in: Capsule())
                         .overlay(
-                            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .stroke(AppTheme.outlineGradient, lineWidth: 1)
+                            Capsule()
+                                .stroke(AppTheme.line, lineWidth: 1)
                         )
-                        .shadow(color: AppTheme.shadowColor.opacity(0.40), radius: 16, x: 0, y: 8)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(isFlipped ? "Show question" : "Show answer")
-                .accessibilityHint("Double tap to flip the current card.")
 
-                circularButton(symbolName: "chevron.right", isEnabled: canMoveForward) {
-                    moveNext()
+                    Text(response.headline)
+                        .font(.system(.footnote, design: .rounded).weight(.semibold))
+                        .foregroundStyle(AppTheme.secondaryText)
+                        .lineLimit(1)
                 }
-                .accessibilityLabel("Next card")
-                .accessibilityHint("Moves to the next card in this session.")
-            }
 
-            Button {
-                reviewStore.toggle(card.id)
-                Haptics.selection()
-            } label: {
-                Label(
-                    reviewStore.isMarked(card.id) ? "Marked for review" : "Mark for review",
-                    systemImage: reviewStore.isMarked(card.id) ? "bookmark.fill" : "bookmark"
-                )
-                .font(.system(.headline, design: .rounded).weight(.semibold))
-                .foregroundStyle(reviewStore.isMarked(card.id) ? .white : AppTheme.primaryText)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .fill(
-                            reviewStore.isMarked(card.id)
-                                ? AnyShapeStyle(AppTheme.gradient(for: session.deckID))
-                                : AnyShapeStyle(AppTheme.surfaceGradient)
-                        )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Color.white.opacity(reviewStore.isMarked(card.id) ? 0.14 : 0.18), lineWidth: 1)
-                )
-                .shadow(color: AppTheme.shadowColor.opacity(0.42), radius: 16, x: 0, y: 8)
+            case nil:
+                Text("Explain, compare, quiz, or review the current card using local deck knowledge.")
+                    .font(.system(.footnote, design: .rounded))
+                    .foregroundStyle(AppTheme.secondaryText)
             }
-            .buttonStyle(.plain)
-            .accessibilityValue(reviewStore.isMarked(card.id) ? "Marked" : "Not marked")
         }
         .padding(.horizontal, 20)
+        .accessibilityElement(children: .contain)
+    }
+
+    private var assistSheetIsPresented: Binding<Bool> {
+        Binding(
+            get: { assistSheetPresentation != nil },
+            set: { isPresented in
+                if isPresented == false {
+                    assistSheetPresentation = nil
+                }
+            }
+        )
+    }
+
+    private func reviewButton(for card: FlashCard) -> some View {
+        Button {
+            reviewStore.toggle(card.id)
+            Haptics.selection()
+        } label: {
+            Label(
+                reviewStore.isMarked(card.id) ? "Marked for review" : "Mark for review",
+                systemImage: reviewStore.isMarked(card.id) ? "bookmark.fill" : "bookmark"
+            )
+            .font(.system(.headline, design: .rounded).weight(.semibold))
+            .foregroundStyle(reviewStore.isMarked(card.id) ? .white : AppTheme.primaryText)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(
+                        reviewStore.isMarked(card.id)
+                            ? AnyShapeStyle(AppTheme.gradient(for: session.deckCategory))
+                            : AnyShapeStyle(AppTheme.surfaceGradient)
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Color.white.opacity(reviewStore.isMarked(card.id) ? 0.14 : 0.18), lineWidth: 1)
+            )
+            .shadow(color: AppTheme.shadowColor.opacity(0.42), radius: 16, x: 0, y: 8)
+        }
+        .buttonStyle(.plain)
+        .accessibilityValue(reviewStore.isMarked(card.id) ? "Marked" : "Not marked")
+        .padding(.horizontal, 20)
+    }
+
+    private func presentAssist(_ action: CardAssistAction) {
+        guard let card = currentCard else { return }
+
+        let request = CardAssistRequest(
+            action: action,
+            deckID: session.deckID,
+            deckTitle: session.deckTitle,
+            deckCategory: session.deckCategory,
+            deckCards: orderedCards,
+            cardID: card.id,
+            cardTitle: card.title,
+            prompt: card.prompt,
+            answer: card.answer,
+            tags: card.tags,
+            userInput: nil
+        )
+
+        assistTask?.cancel()
+        let loadingPresentation = AssistPresentation.loading(for: request)
+        assistPresentation = loadingPresentation
+        assistSheetPresentation = loadingPresentation
+
+        assistTask = Task {
+            let response = await cardAssistService.respond(to: request)
+            guard Task.isCancelled == false else { return }
+
+            await MainActor.run {
+                guard currentCard?.id == request.cardID else { return }
+                let responsePresentation = AssistPresentation(response: response, cardTitle: request.cardTitle)
+                assistPresentation = responsePresentation
+
+                if assistSheetPresentation != nil {
+                    assistSheetPresentation = responsePresentation
+                }
+            }
+        }
+
+        Haptics.soft(0.44)
     }
 
     private var dragGesture: some Gesture {
@@ -262,27 +377,6 @@ struct StudyView: View {
                     Haptics.soft(0.34)
                 }
             }
-    }
-
-    private func circularButton(symbolName: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbolName)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(isEnabled ? AppTheme.primaryText : AppTheme.secondaryText)
-                .frame(width: 56, height: 56)
-                .background(
-                    Circle()
-                        .fill(AppTheme.surfaceGradient)
-                )
-                .overlay(
-                    Circle()
-                        .stroke(AppTheme.outlineGradient, lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-        .disabled(isEnabled == false)
-        .opacity(isEnabled ? 1 : 0.48)
-        .shadow(color: AppTheme.shadowColor.opacity(0.32), radius: 14, x: 0, y: 8)
     }
 
     private func toggleCardFace() {
@@ -345,8 +439,9 @@ struct StudyView_Previews: PreviewProvider {
         return NavigationStack {
             StudyView(
                 session: StudySession(
-                    deckID: .systemDesign,
+                    deckID: DeckCategory.systemDesign.rawValue,
                     deckTitle: "System Design",
+                    deckCategory: .systemDesign,
                     mode: .randomTwenty,
                     cards: Array(SystemDesignDeck.cards.prefix(12)),
                     startIndex: 0
@@ -354,5 +449,158 @@ struct StudyView_Previews: PreviewProvider {
             )
                 .environmentObject(reviewStore)
         }
+    }
+}
+
+private struct AssistPresentation: Identifiable {
+    enum State {
+        case loading
+        case response(CardAssistResponse)
+    }
+
+    let id: String
+    let action: CardAssistAction
+    let cardTitle: String
+    let state: State
+
+    init(id: String, action: CardAssistAction, cardTitle: String, state: State) {
+        self.id = id
+        self.action = action
+        self.cardTitle = cardTitle
+        self.state = state
+    }
+
+    static func loading(for request: CardAssistRequest) -> AssistPresentation {
+        AssistPresentation(
+            id: request.cacheKey,
+            action: request.action,
+            cardTitle: request.cardTitle,
+            state: .loading
+        )
+    }
+
+    init(response: CardAssistResponse, cardTitle: String) {
+        self.id = response.id
+        self.action = response.action
+        self.cardTitle = cardTitle
+        self.state = .response(response)
+    }
+}
+
+private struct AssistPanelView: View {
+    let presentation: AssistPresentation
+
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 18) {
+                Text(presentation.action.title.uppercased())
+                    .font(.system(.caption2, design: .rounded).weight(.bold))
+                    .foregroundStyle(AppTheme.tertiaryText)
+
+                Text(presentation.cardTitle)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(AppTheme.primaryText)
+
+                switch presentation.state {
+                case .loading:
+                    VStack(alignment: .leading, spacing: 14) {
+                        ProgressView()
+                            .controlSize(.regular)
+
+                        Text("Preparing offline help for this card.")
+                            .font(.system(.body, design: .rounded))
+                            .foregroundStyle(AppTheme.secondaryText)
+                    }
+                    .padding(.top, 10)
+
+                case let .response(response):
+                        VStack(alignment: .leading, spacing: 16) {
+                            if response.groundingLabel.isEmpty == false {
+                                Text(response.groundingLabel.uppercased())
+                                    .font(.system(.caption2, design: .rounded).weight(.bold))
+                                    .foregroundStyle(AppTheme.tertiaryText)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 7)
+                                    .background(AppTheme.secondarySurface, in: Capsule())
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(AppTheme.line, lineWidth: 1)
+                                    )
+                            }
+
+                            Text(response.headline)
+                                .font(.system(.headline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(AppTheme.primaryText)
+
+                        Text(response.summary)
+                            .font(.system(.body, design: .rounded))
+                            .foregroundStyle(AppTheme.primaryText)
+                            .lineSpacing(3)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            ForEach(Array(response.bullets.enumerated()), id: \.offset) { _, bullet in
+                                HStack(alignment: .top, spacing: 10) {
+                                    Circle()
+                                        .fill(AppTheme.accentColor(for: .custom))
+                                        .frame(width: 8, height: 8)
+                                        .padding(.top, 7)
+
+                                    Text(bullet)
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .foregroundStyle(AppTheme.secondaryText)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+
+                        if response.snippets.isEmpty == false {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Deck References")
+                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .foregroundStyle(AppTheme.primaryText)
+
+                                ForEach(response.snippets) { snippet in
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(snippet.title)
+                                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                            .foregroundStyle(AppTheme.primaryText)
+
+                                        Text(snippet.detail)
+                                            .font(.system(.footnote, design: .rounded))
+                                            .foregroundStyle(AppTheme.secondaryText)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    .padding(14)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                            .fill(AppTheme.surfaceGradient)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                            .stroke(AppTheme.outlineGradient, lineWidth: 1)
+                                    )
+                                }
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(response.footer)
+                                .font(.system(.footnote, design: .rounded))
+                                .foregroundStyle(AppTheme.secondaryText)
+
+                            Text(response.sourceLabel)
+                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .foregroundStyle(AppTheme.tertiaryText)
+                        }
+                        .padding(.top, 4)
+                    }
+                }
+            }
+            .padding(24)
+        }
+        .background(AppBackground(accentDeck: .custom))
+        .navigationTitle("Card Assist")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
