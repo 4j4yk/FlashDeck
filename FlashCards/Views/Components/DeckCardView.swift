@@ -11,10 +11,10 @@ struct DeckCardView: View {
                 HStack(spacing: 14) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color.white.opacity(0.16))
+                            .fill(AppTheme.accentChromeFill)
 
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                            .stroke(AppTheme.accentChromeStroke, lineWidth: 1)
 
                         Image(systemName: deck.symbolName)
                             .font(.system(size: 22, weight: .bold))
@@ -58,10 +58,10 @@ struct DeckCardView: View {
 
                 ZStack {
                     Circle()
-                        .fill(Color.white.opacity(0.16))
+                        .fill(AppTheme.accentChromeFill)
 
                     Circle()
-                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                        .stroke(AppTheme.accentChromeStroke, lineWidth: 1)
 
                     Image(systemName: "arrow.right")
                         .font(.system(size: 14, weight: .semibold))
@@ -73,25 +73,29 @@ struct DeckCardView: View {
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
-                .fill(AppTheme.gradient(for: deck.id))
+                .fill(AppTheme.gradient(for: deck.category))
                 .overlay(alignment: .topTrailing) {
-                    Circle()
-                        .fill(Color.white.opacity(0.18))
-                        .frame(width: 180, height: 180)
-                        .blur(radius: 24)
-                        .offset(x: 52, y: -56)
+                    if AppTheme.usesAmbientGlow {
+                        Circle()
+                            .fill(AppTheme.ambientHighlight)
+                            .frame(width: 180, height: 180)
+                            .blur(radius: 24)
+                            .offset(x: 52, y: -56)
+                    }
                 }
                 .overlay(alignment: .bottomLeading) {
-                    RoundedRectangle(cornerRadius: 38, style: .continuous)
-                        .fill(Color.black.opacity(0.10))
-                        .frame(width: 180, height: 76)
-                        .blur(radius: 30)
-                        .offset(x: -26, y: 30)
+                    if AppTheme.usesAmbientGlow {
+                        RoundedRectangle(cornerRadius: 38, style: .continuous)
+                            .fill(AppTheme.ambientShadow)
+                            .frame(width: 180, height: 76)
+                            .blur(radius: 30)
+                            .offset(x: -26, y: 30)
+                    }
                 }
         )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
-                .stroke(Color.white.opacity(0.16), lineWidth: 1)
+                .stroke(AppTheme.accentChromeStroke, lineWidth: 1)
         )
         .shadow(color: AppTheme.deepShadowColor.opacity(0.88), radius: 30, x: 0, y: 18)
         .accessibilityElement(children: .ignore)
@@ -106,7 +110,7 @@ struct DeckCardView: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color.white.opacity(0.16), in: Capsule())
+            .background(AppTheme.accentChromeFill, in: Capsule())
     }
 
     private func metricPill(value: String, label: String) -> some View {
@@ -120,6 +124,6 @@ struct DeckCardView: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.white.opacity(0.16), in: Capsule())
+        .background(AppTheme.accentChromeFill, in: Capsule())
     }
 }

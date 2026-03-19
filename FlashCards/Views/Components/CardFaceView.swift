@@ -11,19 +11,25 @@ struct CardFaceView: View {
     let isMarked: Bool
     let side: Side
 
+    private var isFront: Bool {
+        side == .front
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 10) {
                     labelPill(
-                        side == .front ? "Question" : "Answer",
-                        iconName: side == .front ? "questionmark" : "lightbulb"
+                        isFront ? "Question" : "Answer",
+                        iconName: isFront ? "questionmark" : "lightbulb"
                     )
 
-                    Text(card.title)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundStyle(AppTheme.primaryText)
-                        .lineSpacing(2)
+                    if isFront {
+                        Text(card.title)
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(AppTheme.primaryText)
+                            .lineSpacing(2)
+                    }
                 }
 
                 Spacer()
@@ -42,31 +48,33 @@ struct CardFaceView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(side == .front ? card.prompt : card.answer)
+                    Text(isFront ? card.prompt : card.answer)
                         .font(
                             .system(
-                                size: side == .front ? 28 : 18,
-                                weight: side == .front ? .semibold : .regular,
+                                size: isFront ? 28 : 19,
+                                weight: isFront ? .semibold : .regular,
                                 design: .rounded
                             )
                         )
                         .foregroundStyle(AppTheme.primaryText)
-                        .lineSpacing(side == .front ? 5 : 4)
+                        .lineSpacing(isFront ? 5 : 4)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], alignment: .leading, spacing: 8) {
-                        ForEach(card.tags.prefix(6), id: \.self) { tag in
-                            Text(tag)
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
-                                .foregroundStyle(AppTheme.primaryText)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(AppTheme.secondarySurface, in: Capsule())
-                                .overlay(
-                                    Capsule()
-                                        .stroke(AppTheme.line, lineWidth: 1)
-                                )
+                    if isFront {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], alignment: .leading, spacing: 8) {
+                            ForEach(card.tags.prefix(6), id: \.self) { tag in
+                                Text(tag)
+                                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                                    .foregroundStyle(AppTheme.primaryText)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(AppTheme.secondarySurface, in: Capsule())
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(AppTheme.line, lineWidth: 1)
+                                    )
+                            }
                         }
                     }
                 }
@@ -76,7 +84,7 @@ struct CardFaceView: View {
             Spacer(minLength: 0)
 
             HStack {
-                Text(side == .front ? "Tap for the distilled answer." : "Tap to return to the question.")
+                Text(isFront ? "Tap for the distilled answer." : "Tap to return to the question.")
                     .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(AppTheme.tertiaryText)
 
@@ -99,18 +107,22 @@ struct CardFaceView: View {
             RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
                 .fill(AppTheme.elevatedSurfaceGradient)
                 .overlay(alignment: .topTrailing) {
-                    Circle()
-                        .fill(AppTheme.accentColor(for: deckID).opacity(side == .back ? 0.16 : 0.10))
-                        .frame(width: 200, height: 200)
-                        .blur(radius: 58)
-                        .offset(x: 58, y: -52)
+                    if AppTheme.usesAmbientGlow {
+                        Circle()
+                            .fill(AppTheme.accentColor(for: deckID).opacity(isFront ? 0.10 : 0.16))
+                            .frame(width: 200, height: 200)
+                            .blur(radius: 58)
+                            .offset(x: 58, y: -52)
+                    }
                 }
                 .overlay(alignment: .bottomLeading) {
-                    Circle()
-                        .fill(Color.white.opacity(0.12))
-                        .frame(width: 160, height: 160)
-                        .blur(radius: 60)
-                        .offset(x: -24, y: 48)
+                    if AppTheme.usesAmbientGlow {
+                        Circle()
+                            .fill(AppTheme.ambientHighlight)
+                            .frame(width: 160, height: 160)
+                            .blur(radius: 60)
+                            .offset(x: -24, y: 48)
+                    }
                 }
         )
         .overlay(
@@ -132,7 +144,7 @@ struct CardFaceView: View {
                             ? AnyShapeStyle(AppTheme.gradient(for: deckID))
                             : AnyShapeStyle(
                                 LinearGradient(
-                                    colors: [Color.white.opacity(0.12), Color.white.opacity(0.05)],
+                                    colors: [AppTheme.tintBubble, AppTheme.secondarySurface],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -141,7 +153,7 @@ struct CardFaceView: View {
             )
             .overlay(
                 Circle()
-                    .stroke(Color.white.opacity(isAccent ? 0.12 : 0.14), lineWidth: 1)
+                    .stroke(AppTheme.accentChromeStroke.opacity(isAccent ? 1 : 0.92), lineWidth: 1)
             )
     }
 
