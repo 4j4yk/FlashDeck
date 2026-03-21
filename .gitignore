@@ -2,8 +2,12 @@
 
 .build/
 .derivedData/
+.derivedData-*/
 *.xcuserstate
 xcuserdata/
 
-.simulator-check.png
-.simulator-check-2.png
+.simulator-*.png
+.simulator-check*.png
+
+release/*.ipa
+release/*.sha256
