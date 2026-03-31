@@ -1,22 +1,23 @@
 # Install And Sideload
 
-## Download From GitHub Releases
+## Download Release Assets
 
-1. Open the latest GitHub Release for this repository.
-2. Download:
-   - `FlashCards-sideload.ipa`
-   - `FlashCards-sideload.ipa.sha256`
-3. Verify the checksum locally:
+From the published GitHub release, download:
+
+- `FlashCards-sideload.ipa`
+- `FlashCards-sideload.ipa.sha256`
+
+Verify the checksum locally:
 
 ```sh
 shasum -a 256 FlashCards-sideload.ipa
 ```
 
-Compare the output to the `.sha256` file from the release.
+Compare the output to the `.sha256` file from the same release.
 
 ## Install With A Sideload Tool
 
-This IPA is unsigned by design. A sideload tool signs it during install with your Apple account.
+The IPA is unsigned by design. A sideload tool signs it during install with your Apple account.
 
 Supported tools:
 
@@ -26,7 +27,7 @@ Supported tools:
 
 General steps:
 
-1. Install one of the sideload tools on your Mac or PC.
+1. Install one of the supported sideload tools on your Mac or PC.
 2. Add your Apple ID to that tool as required by the tool's normal flow.
 3. Choose `FlashCards-sideload.ipa` as the app to install.
 4. Let the tool sign and install the IPA.
@@ -39,17 +40,28 @@ Official docs:
 - SideStore: <https://docs.sidestore.io/docs/installation/install>
 - Sideloadly: <https://sideloadly.io/>
 
-## Troubleshooting
+## Important Artifact Note
 
-- If install fails, make sure the IPA checksum matches the release note.
-- If the app will not open, trust the developer profile in `Settings > General > VPN & Device Management`.
-- If the sideload tool warns about app limits, refresh or remove old sideloaded apps tied to the same Apple ID.
-- If the install succeeds but the app crashes immediately, use the matching release notes and confirm you downloaded the latest asset pair.
+- the IPA is for iPhone or iPad device sideloading
+- the IPA is not a simulator artifact
+- simulator testing uses the built `.app` from Xcode or `xcodebuild`
 
 ## Build It Yourself
 
-To generate the IPA locally:
+Generate a local unsigned release IPA:
 
 ```sh
 ./scripts/create-release-artifacts.sh
 ```
+
+This writes:
+
+- `release/FlashCards-sideload.ipa`
+- `release/FlashCards-sideload.ipa.sha256`
+
+## Troubleshooting
+
+- If install fails, verify the checksum before retrying.
+- If the app will not open, trust the developer profile in `Settings > General > VPN & Device Management`.
+- If the sideload tool warns about app limits, refresh or remove old sideloaded apps tied to the same Apple ID.
+- If you need to test in the simulator, build the app locally instead of trying to install the IPA.

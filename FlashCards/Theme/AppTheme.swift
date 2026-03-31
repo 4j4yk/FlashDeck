@@ -121,11 +121,17 @@ final class AppearanceStore: ObservableObject {
         self.readingMode = readingMode
         defaults.set(readingMode.rawValue, forKey: readingModeKey)
     }
+
+    func reset() {
+        colorSchemePreference = .system
+        readingMode = .standard
+        defaults.removeObject(forKey: colorSchemeKey)
+        defaults.removeObject(forKey: readingModeKey)
+    }
 }
 
 enum AppTheme {
     static let cornerRadius: CGFloat = 30
-    static let cardHeight: CGFloat = 492
     static let rootTabBarClearance: CGFloat = 126
 
     private static var readingMode: AppReadingMode {

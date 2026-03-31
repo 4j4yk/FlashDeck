@@ -108,6 +108,15 @@ final class AppViewModel: ObservableObject {
         .sample
     }
 
+    func knowledgeDeckFile(for deckID: String) -> KnowledgeDeckFile? {
+        guard let deck = deck(for: deckID) else { return nil }
+        return knowledgeStore.knowledgeDeckFile(
+            for: deck.id,
+            deckCategory: deck.category,
+            deckCards: deck.cards
+        )
+    }
+
     func importDeckFile(_ deckFile: DeckFile) throws {
         let importedDeck = try deckFile.toDeck()
         try validateUniqueCardIDs(for: importedDeck)
@@ -123,6 +132,18 @@ final class AppViewModel: ObservableObject {
     func consumeStartupNotice() -> PersistenceNotice? {
         defer { startupNotice = nil }
         return startupNotice
+    }
+
+    func resetLocalData() async {
+        defaults.removeObject(forKey: lastDeckKey)
+        lastOpenedDeckID = nil
+        startupNotice = nil
+
+        try? customDeckStore.clear()
+        knowledgeStore.resetImportedKnowledge()
+        reloadDecks(customDecks: [])
+
+        await CardAssistCache.shared.clearAll()
     }
 
     private func rawDeck(for deckID: String) -> Deck? {
@@ -229,6 +250,12 @@ final class CustomDeckStore {
         deckFiles.append(deckFile)
 
         try persist(deckFiles, to: storageURL())
+    }
+
+    func clear() throws {
+        let url = try storageURL()
+        guard fileManager.fileExists(atPath: url.path) else { return }
+        try fileManager.removeItem(at: url)
     }
 
     private struct DeckFileLoadOutcome {

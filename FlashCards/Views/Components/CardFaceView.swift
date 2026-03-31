@@ -26,7 +26,7 @@ struct CardFaceView: View {
 
                     if isFront {
                         Text(card.title)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(.title, design: .rounded).weight(.bold))
                             .foregroundStyle(AppTheme.primaryText)
                             .lineSpacing(2)
                     }
@@ -34,15 +34,8 @@ struct CardFaceView: View {
 
                 Spacer()
 
-                HStack(spacing: 10) {
-                    if isMarked {
-                        statusIcon(symbolName: "bookmark.fill", isAccent: true)
-                    }
-
-                    statusIcon(
-                        symbolName: side == .front ? "rectangle.text.magnifyingglass" : "sparkles",
-                        isAccent: false
-                    )
+                if isMarked {
+                    statusIcon(symbolName: "bookmark.fill", isAccent: true)
                 }
             }
 
@@ -50,11 +43,9 @@ struct CardFaceView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(isFront ? card.prompt : card.answer)
                         .font(
-                            .system(
-                                size: isFront ? 28 : 19,
-                                weight: isFront ? .semibold : .regular,
-                                design: .rounded
-                            )
+                            isFront
+                                ? .system(.title, design: .rounded).weight(.semibold)
+                                : .system(.body, design: .rounded)
                         )
                         .foregroundStyle(AppTheme.primaryText)
                         .lineSpacing(isFront ? 5 : 4)
@@ -83,23 +74,16 @@ struct CardFaceView: View {
 
             Spacer(minLength: 0)
 
-            HStack {
-                Text(isFront ? "Tap for the distilled answer." : "Tap to return to the question.")
-                    .font(.system(.footnote, design: .rounded))
-                    .foregroundStyle(AppTheme.tertiaryText)
+            if isFront {
+                HStack(spacing: 8) {
+                    Image(systemName: "hand.tap")
+                        .font(.system(size: 12, weight: .semibold))
 
-                Spacer()
-
-                Image(systemName: "hand.tap.fill")
-                    .foregroundStyle(AppTheme.tertiaryText)
+                    Text("Tap anywhere to flip")
+                        .font(.system(.caption, design: .rounded).weight(.medium))
+                }
+                .foregroundStyle(AppTheme.tertiaryText)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(AppTheme.secondarySurface.opacity(0.88), in: Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(AppTheme.line, lineWidth: 1)
-            )
         }
         .padding(26)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

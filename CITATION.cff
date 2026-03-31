@@ -11,11 +11,9 @@ keywords:
   - swiftui
   - flashcards
   - system-design
+  - solution-architecture
   - aws
   - offline-ai
 license: MIT
-repository-code: "https://github.com/hq/learningFlashCards"
-repository-artifact: "https://github.com/hq/learningFlashCards/releases"
-url: "https://github.com/hq/learningFlashCards"
 version: 1.0.0
 date-released: 2026-03-23

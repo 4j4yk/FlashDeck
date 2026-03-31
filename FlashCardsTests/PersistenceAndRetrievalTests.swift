@@ -217,6 +217,73 @@ final class PersistenceAndRetrievalTests: XCTestCase {
         XCTAssertNil(cachedAfterInvalidate)
     }
 
+    func testImportedKnowledgeAppliesOnlyToExactDeckIDMatches() throws {
+        let customKnowledgeStore = CustomKnowledgeStore(fileManager: fileManager, baseDirectoryURL: tempDirectoryURL)
+        let knowledgeStore = KnowledgeStore(bundle: Bundle(for: Self.self), customKnowledgeStore: customKnowledgeStore)
+        let importedKnowledge = KnowledgeDeckFile(
+            deckID: "aws-services",
+            documents: [
+                KnowledgeDocument(
+                    id: "lambda-imported",
+                    deckID: "aws-services",
+                    title: "Lambda",
+                    aliases: ["aws lambda"],
+                    tags: ["compute", "serverless"],
+                    summary: "Imported knowledge for the built-in AWS deck.",
+                    keyPoints: ["Imported exact-match knowledge should win only for the matching deck id."],
+                    examples: [],
+                    compareTo: [],
+                    pitfalls: [],
+                    avoidWhen: []
+                )
+            ]
+        )
+
+        try knowledgeStore.importKnowledgeDeckFile(importedKnowledge)
+
+        let customCard = FlashCard(
+            id: "custom-lambda-card",
+            deckID: "my-aws-deck",
+            title: "Lambda",
+            prompt: "Explain Lambda.",
+            answer: "Use Lambda for short-lived event-driven compute.",
+            tags: ["aws", "compute", "serverless"]
+        )
+        let customDeckRequest = CardAssistRequest(
+            action: .explain,
+            deckID: "my-aws-deck",
+            deckTitle: "My AWS Deck",
+            deckCategory: .awsServices,
+            deckCards: [customCard],
+            cardID: customCard.id,
+            cardTitle: customCard.title,
+            prompt: customCard.prompt,
+            answer: customCard.answer,
+            tags: customCard.tags,
+            userInput: nil
+        )
+
+        let customDeckDocuments = knowledgeStore.documents(for: customDeckRequest)
+        XCTAssertEqual(customDeckDocuments.first?.id, customCard.id)
+
+        let builtInRequest = CardAssistRequest(
+            action: .explain,
+            deckID: "aws-services",
+            deckTitle: "AWS Services",
+            deckCategory: .awsServices,
+            deckCards: [customCard],
+            cardID: customCard.id,
+            cardTitle: customCard.title,
+            prompt: customCard.prompt,
+            answer: customCard.answer,
+            tags: customCard.tags,
+            userInput: nil
+        )
+
+        let builtInDocuments = knowledgeStore.documents(for: builtInRequest)
+        XCTAssertEqual(builtInDocuments.first?.id, "lambda-imported")
+    }
+
     private func seed<T: Encodable>(payload: T, storageFilename: String) throws {
         let directoryURL = tempDirectoryURL.appendingPathComponent("FlashCards", isDirectory: true)
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)

@@ -5,6 +5,7 @@ struct StudyView: View {
 
     let session: StudySession
     private let cardAssistService: any CardAssistService
+    @ScaledMetric(relativeTo: .title2) private var cardMinHeight = 492
 
     @State private var currentIndex: Int
     @State private var orderedCards: [FlashCard]
@@ -72,13 +73,30 @@ struct StudyView: View {
                     )
                     .id(currentCard.id)
                     .frame(maxWidth: .infinity)
-                    .frame(height: AppTheme.cardHeight)
+                    .frame(minHeight: cardMinHeight)
                     .offset(x: dragOffset)
                     .rotationEffect(.degrees(Double(dragOffset / 18)))
                     .scaleEffect(1 - (dragProgress * 0.035))
                     .animation(.interactiveSpring(response: 0.26, dampingFraction: 0.86), value: dragOffset)
                     .highPriorityGesture(dragGesture)
                     .padding(.horizontal, 20)
+                    .accessibilityHint("Double tap to flip the card. Use Actions for next or previous card.")
+                    .accessibilityAdjustableAction { direction in
+                        switch direction {
+                        case .increment:
+                            moveNext()
+                        case .decrement:
+                            movePrevious()
+                        @unknown default:
+                            break
+                        }
+                    }
+                    .accessibilityAction(named: Text("Next Card")) {
+                        moveNext()
+                    }
+                    .accessibilityAction(named: Text("Previous Card")) {
+                        movePrevious()
+                    }
 
                     reviewButton(for: currentCard)
                 }
@@ -97,7 +115,35 @@ struct StudyView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if let currentCard {
+                    Menu {
+                        Button(isFlipped ? "Show Question" : "Show Answer") {
+                            toggleCardFace()
+                        }
+
+                        if canMoveBackward {
+                            Button("Previous Card") {
+                                movePrevious()
+                            }
+                        }
+
+                        if canMoveForward {
+                            Button("Next Card") {
+                                moveNext()
+                            }
+                        }
+
+                        Button(reviewStore.isMarked(currentCard.id) ? "Unmark Review" : "Mark for Review") {
+                            reviewStore.toggle(currentCard.id)
+                            Haptics.selection()
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("Card actions")
+                }
+
                 if orderedCards.count > 1 {
                     Button {
                         toggleShuffle()
@@ -142,10 +188,10 @@ struct StudyView: View {
                         .foregroundStyle(AppTheme.tertiaryText)
 
                     Text(session.mode.detailText(cardCount: orderedCards.count))
-                        .font(.system(size: 23, weight: .bold, design: .rounded))
+                        .font(.system(.title2, design: .rounded).weight(.bold))
                         .foregroundStyle(AppTheme.primaryText)
 
-                    Text("Tap the card to flip. Swipe sideways to move.")
+                    Text("Tap the card to flip. Swipe sideways to move, or use Actions.")
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundStyle(AppTheme.secondaryText)
                 }
@@ -498,7 +544,7 @@ private struct AssistPanelView: View {
                     .foregroundStyle(AppTheme.tertiaryText)
 
                 Text(presentation.cardTitle)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(.title, design: .rounded).weight(.bold))
                     .foregroundStyle(AppTheme.primaryText)
 
                 switch presentation.state {

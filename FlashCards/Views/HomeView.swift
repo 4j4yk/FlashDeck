@@ -3,18 +3,26 @@ import UniformTypeIdentifiers
 
 struct HomeView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
+    @EnvironmentObject private var reviewStore: ReviewStore
     @EnvironmentObject private var appearanceStore: AppearanceStore
 
     private let maxImportBytes = 2_000_000
+    private let walkthroughStorageKey = "flashcards.didShowWalkthrough.v1"
 
     @State private var isImportingDeck = false
     @State private var isImportingKnowledge = false
     @State private var isExportingDeck = false
+    @State private var isExportingKnowledge = false
     @State private var isShowingAbout = false
     @State private var isShowingAppearance = false
+    @State private var isShowingResetAppAlert = false
     @State private var exportDocument: DeckFileDocument?
+    @State private var knowledgeExportDocument: KnowledgeDeckFileDocument?
     @State private var exportFilename = "deck"
-    @State private var transferNotice: TransferNotice?
+    @State private var knowledgeExportFilename = "deck-knowledge"
+    @State private var alertNotice: TransferNotice?
+    @State private var bannerNotice: TransferNotice?
+    @State private var bannerDismissTask: Task<Void, Never>?
 
     private var lastOpenedAccentDeck: DeckCategory? {
         guard let lastOpenedDeckID = appViewModel.lastOpenedDeckID else { return nil }
@@ -149,51 +157,76 @@ struct HomeView: View {
             }
             .navigationTitle("Study")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                        Button {
-                            isShowingAbout = true
-                        } label: {
-                            Label("About FlashCards", systemImage: "info.circle")
-                        }
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        isShowingAppearance = true
+                    } label: {
+                        Image(systemName: "paintbrush")
+                    }
+                    .accessibilityLabel("Appearance")
 
-                        Button {
-                            isShowingAppearance = true
-                        } label: {
-                            Label("Appearance", systemImage: "circle.lefthalf.filled")
-                        }
-
-                        Button {
-                            isImportingDeck = true
-                        } label: {
-                            Label("Import Deck JSON", systemImage: "square.and.arrow.down")
-                        }
-
-                        Button {
-                            isImportingKnowledge = true
-                        } label: {
-                            Label("Import Knowledge JSON", systemImage: "brain")
-                        }
-
-                        Button {
-                            startSampleExport()
-                        } label: {
-                            Label("Export Sample JSON", systemImage: "doc.badge.plus")
-                        }
-
-                        Menu {
-                            ForEach(appViewModel.decks) { deck in
-                                Button(deck.title) {
-                                    startDeckExport(deck)
-                                }
+                    Menu {
+                        Section("About") {
+                            Button {
+                                isShowingAbout = true
+                            } label: {
+                                Label("About FlashCards", systemImage: "info.circle")
                             }
-                        } label: {
-                            Label("Export Existing Deck", systemImage: "square.and.arrow.up")
+                        }
+
+                        Section("Deck Files") {
+                            Button {
+                                isImportingDeck = true
+                            } label: {
+                                Label("Import Deck JSON", systemImage: "square.and.arrow.down")
+                            }
+
+                            Button {
+                                startSampleExport()
+                            } label: {
+                                Label("Export Sample Deck JSON", systemImage: "doc.badge.plus")
+                            }
+
+                            Menu {
+                                ForEach(appViewModel.decks) { deck in
+                                    Button(deck.title) {
+                                        startDeckExport(deck)
+                                    }
+                                }
+                            } label: {
+                                Label("Export Installed Deck", systemImage: "square.and.arrow.up")
+                            }
+                        }
+
+                        Section("Assist Knowledge") {
+                            Button {
+                                isImportingKnowledge = true
+                            } label: {
+                                Label("Import Knowledge JSON", systemImage: "brain")
+                            }
+
+                            Menu {
+                                ForEach(appViewModel.decks) { deck in
+                                    Button(deck.title) {
+                                        startKnowledgeExport(deck)
+                                    }
+                                }
+                            } label: {
+                                Label("Export Deck Knowledge", systemImage: "brain.head.profile")
+                            }
+                        }
+
+                        Section("Reset") {
+                            Button(role: .destructive) {
+                                isShowingResetAppAlert = true
+                            } label: {
+                                Label("Reset App to Default", systemImage: "trash.fill")
+                            }
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
-                    .accessibilityLabel("Deck import and export")
+                    .accessibilityLabel("More options")
                 }
             }
         }
@@ -215,6 +248,13 @@ struct HomeView: View {
             contentType: .json,
             defaultFilename: exportFilename,
             onCompletion: handleExport
+        )
+        .fileExporter(
+            isPresented: $isExportingKnowledge,
+            document: knowledgeExportDocument,
+            contentType: .json,
+            defaultFilename: knowledgeExportFilename,
+            onCompletion: handleKnowledgeExport
         )
         .sheet(isPresented: $isShowingAbout) {
             NavigationStack {
@@ -242,9 +282,34 @@ struct HomeView: View {
             }
         }
         .onAppear(perform: presentStartupNoticeIfNeeded)
-        .alert(item: $transferNotice) { notice in
+        .onDisappear {
+            bannerDismissTask?.cancel()
+            bannerDismissTask = nil
+        }
+        .confirmationDialog("Reset All Local Data?", isPresented: $isShowingResetAppAlert, titleVisibility: .visible) {
+            Button("Erase and Reset", role: .destructive) {
+                Task { @MainActor in
+                    await factoryRestore()
+                }
+            }
+        } message: {
+            Text("This returns the app to its first-install state. Imported decks, imported knowledge, review marks, appearance choices, the local assist cache, the last opened deck, and the walkthrough state will all be cleared. Built-in decks stay available.")
+        }
+        .alert(item: $alertNotice) { notice in
             Alert(title: Text(notice.title), message: Text(notice.message), dismissButton: .default(Text("OK")))
         }
+        .overlay(alignment: .bottom) {
+            if let bannerNotice {
+                NoticeBanner(notice: bannerNotice)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, AppTheme.rootTabBarClearance + 12)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .onTapGesture {
+                        dismissBanner()
+                    }
+            }
+        }
+        .animation(.easeOut(duration: 0.22), value: bannerNotice?.id)
     }
 
     private var hero: some View {
@@ -254,7 +319,7 @@ struct HomeView: View {
                 .foregroundStyle(AppTheme.tertiaryText)
 
             Text("Architecture mastery with almost no friction.")
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .font(.system(.largeTitle, design: .rounded).weight(.bold))
                 .foregroundStyle(AppTheme.primaryText)
                 .lineSpacing(2)
 
@@ -322,6 +387,20 @@ struct HomeView: View {
         startExport(deckFile: appViewModel.sampleDeckFile(), suggestedName: "Sample Deck")
     }
 
+    private func startKnowledgeExport(_ deck: Deck) {
+        guard let knowledgeDeckFile = appViewModel.knowledgeDeckFile(for: deck.id) else {
+            presentBanner(
+                title: "Nothing to export",
+                message: "No grounded knowledge is available for \"\(deck.title)\" yet."
+            )
+            return
+        }
+
+        knowledgeExportDocument = KnowledgeDeckFileDocument(deckFile: knowledgeDeckFile)
+        knowledgeExportFilename = "\(sanitizedFilename(for: deck.title))-knowledge"
+        isExportingKnowledge = true
+    }
+
     private func startExport(deckFile: DeckFile, suggestedName: String) {
         exportDocument = DeckFileDocument(deckFile: deckFile)
         exportFilename = sanitizedFilename(for: suggestedName)
@@ -331,14 +410,14 @@ struct HomeView: View {
     private func handleDeckImport(_ result: Result<[URL], Error>) {
         do {
             let data = try importedJSONData(from: result, emptySelectionMessage: "No JSON file was selected.")
-            let deckFile = try JSONDecoder().decode(DeckFile.self, from: data)
+            let deckFile = try decodeDeckFile(from: data)
             try appViewModel.importDeckFile(deckFile)
-            transferNotice = TransferNotice(
+            presentBanner(
                 title: "Deck imported",
                 message: "\"\(deckFile.title)\" is now available in your deck list."
             )
         } catch {
-            transferNotice = TransferNotice(
+            alertNotice = TransferNotice(
                 title: "Import failed",
                 message: error.localizedDescription
             )
@@ -348,20 +427,54 @@ struct HomeView: View {
     private func handleKnowledgeImport(_ result: Result<[URL], Error>) {
         do {
             let data = try importedJSONData(from: result, emptySelectionMessage: "No JSON file was selected.")
-            let knowledgeDeckFile = try JSONDecoder().decode(KnowledgeDeckFile.self, from: data)
+            let knowledgeDeckFile = try decodeKnowledgeDeckFile(from: data)
             let importedKnowledge = try appViewModel.importKnowledgeDeckFile(knowledgeDeckFile)
-            let deckTitle = appViewModel.deck(for: importedKnowledge.deckID)?.title ?? importedKnowledge.deckID
-
-            transferNotice = TransferNotice(
+            let deckTitle = appViewModel.deck(for: importedKnowledge.deckID)?.title
+            let message: String
+            if let deckTitle {
+                message = "Grounded assist knowledge for \"\(deckTitle)\" is ready. This updates Explain, Compare, Quiz Me, and Feedback, not the deck list."
+            } else {
+                message = "Knowledge for deck id \"\(importedKnowledge.deckID)\" was stored. It will be used when a deck with that id is available."
+            }
+            presentBanner(
                 title: "Knowledge imported",
-                message: "Grounded knowledge is now available for \"\(deckTitle)\"."
+                message: message
             )
         } catch {
-            transferNotice = TransferNotice(
+            alertNotice = TransferNotice(
                 title: "Import failed",
                 message: error.localizedDescription
             )
         }
+    }
+
+    private func handleKnowledgeExport(_ result: Result<URL, Error>) {
+        defer {
+            knowledgeExportDocument = nil
+        }
+
+        switch result {
+        case .success:
+            presentBanner(
+                title: "Knowledge exported",
+                message: "The grounded knowledge JSON was saved successfully."
+            )
+        case let .failure(error):
+            alertNotice = TransferNotice(
+                title: "Export failed",
+                message: error.localizedDescription
+            )
+        }
+    }
+
+    @MainActor
+    private func factoryRestore() async {
+        await appViewModel.resetLocalData()
+        reviewStore.reset()
+        appearanceStore.reset()
+        UserDefaults.standard.removeObject(forKey: walkthroughStorageKey)
+        alertNotice = nil
+        dismissBanner()
     }
 
     private func handleExport(_ result: Result<URL, Error>) {
@@ -371,12 +484,12 @@ struct HomeView: View {
 
         switch result {
         case .success:
-            transferNotice = TransferNotice(
+            presentBanner(
                 title: "Export complete",
                 message: "The deck JSON was saved successfully."
             )
         case let .failure(error):
-            transferNotice = TransferNotice(
+            alertNotice = TransferNotice(
                 title: "Export failed",
                 message: error.localizedDescription
             )
@@ -384,15 +497,36 @@ struct HomeView: View {
     }
 
     private func presentStartupNoticeIfNeeded() {
-        guard transferNotice == nil,
+        guard alertNotice == nil,
               let notice = appViewModel.consumeStartupNotice() else {
             return
         }
 
-        transferNotice = TransferNotice(
+        alertNotice = TransferNotice(
             title: notice.title,
             message: notice.message
         )
+    }
+
+    private func presentBanner(title: String, message: String) {
+        bannerDismissTask?.cancel()
+        bannerNotice = TransferNotice(title: title, message: message)
+
+        bannerDismissTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            guard Task.isCancelled == false else { return }
+            withAnimation(.easeOut(duration: 0.22)) {
+                bannerNotice = nil
+            }
+        }
+    }
+
+    private func dismissBanner() {
+        bannerDismissTask?.cancel()
+        bannerDismissTask = nil
+        withAnimation(.easeOut(duration: 0.18)) {
+            bannerNotice = nil
+        }
     }
 
     private func sanitizedFilename(for title: String) -> String {
@@ -424,7 +558,85 @@ struct HomeView: View {
             throw DeckImportError.invalidDeck("JSON files must be 2 MB or smaller.")
         }
 
-        return try Data(contentsOf: url, options: [.mappedIfSafe])
+        guard let stream = InputStream(url: url) else {
+            throw DeckImportError.invalidDeck("The selected file could not be opened.")
+        }
+
+        stream.open()
+        defer {
+            stream.close()
+        }
+
+        var data = Data()
+        let chunkSize = 64 * 1024
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: chunkSize)
+        defer {
+            buffer.deallocate()
+        }
+
+        while stream.hasBytesAvailable {
+            let bytesRead = stream.read(buffer, maxLength: chunkSize)
+
+            if bytesRead < 0 {
+                throw stream.streamError ?? DeckImportError.invalidDeck("The selected file could not be read.")
+            }
+
+            if bytesRead == 0 {
+                break
+            }
+
+            data.append(buffer, count: bytesRead)
+
+            if data.count > maxImportBytes {
+                throw DeckImportError.invalidDeck("JSON files must be 2 MB or smaller.")
+            }
+        }
+
+        return data
+    }
+
+    private func decodeDeckFile(from data: Data) throws -> DeckFile {
+        do {
+            return try JSONDecoder().decode(DeckFile.self, from: data)
+        } catch let error as DecodingError {
+            throw DeckImportError.invalidDeck(
+                "This JSON does not match the deck format. Use \"Import Knowledge JSON\" only for grounded assist files.\n\n\(friendlyDecodingMessage(for: error))"
+            )
+        } catch {
+            throw error
+        }
+    }
+
+    private func decodeKnowledgeDeckFile(from data: Data) throws -> KnowledgeDeckFile {
+        do {
+            return try JSONDecoder().decode(KnowledgeDeckFile.self, from: data)
+        } catch let error as DecodingError {
+            throw KnowledgeImportError.invalidKnowledge(
+                "This JSON does not match the knowledge format. Use \"Import Deck JSON\" for study decks.\n\n\(friendlyDecodingMessage(for: error))"
+            )
+        } catch {
+            throw error
+        }
+    }
+
+    private func friendlyDecodingMessage(for error: DecodingError) -> String {
+        switch error {
+        case let .keyNotFound(key, _):
+            return "Missing expected field: \(key.stringValue)."
+        case let .typeMismatch(_, context):
+            return "Unexpected value near \(codingPathDescription(for: context.codingPath))."
+        case let .valueNotFound(_, context):
+            return "Missing value near \(codingPathDescription(for: context.codingPath))."
+        case let .dataCorrupted(context):
+            return context.debugDescription
+        @unknown default:
+            return "The JSON structure could not be read."
+        }
+    }
+
+    private func codingPathDescription(for codingPath: [CodingKey]) -> String {
+        let path = codingPath.map(\.stringValue).joined(separator: ".")
+        return path.isEmpty ? "the top level" : path
     }
 }
 
@@ -457,6 +669,43 @@ private struct TransferNotice: Identifiable {
     let message: String
 }
 
+private struct NoticeBanner: View {
+    let notice: TransferNotice
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(AppTheme.accentColor(for: .custom))
+                .padding(.top, 2)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(notice.title)
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .foregroundStyle(AppTheme.primaryText)
+
+                Text(notice.message)
+                    .font(.system(.footnote, design: .rounded))
+                    .foregroundStyle(AppTheme.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(AppTheme.elevatedSurfaceGradient)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(AppTheme.outlineGradient, lineWidth: 1)
+        )
+        .shadow(color: AppTheme.shadowColor.opacity(0.32), radius: 18, x: 0, y: 10)
+        .accessibilityElement(children: .combine)
+    }
+}
+
 private struct DeckFileDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.json] }
 
@@ -482,6 +731,31 @@ private struct DeckFileDocument: FileDocument {
     }
 }
 
+private struct KnowledgeDeckFileDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.json] }
+
+    let deckFile: KnowledgeDeckFile
+
+    init(deckFile: KnowledgeDeckFile) {
+        self.deckFile = deckFile
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents else {
+            throw KnowledgeImportError.invalidKnowledge("The selected file was empty.")
+        }
+
+        deckFile = try JSONDecoder().decode(KnowledgeDeckFile.self, from: data)
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(deckFile)
+        return FileWrapper(regularFileWithContents: data)
+    }
+}
+
 private struct AboutView: View {
     private var versionText: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -494,10 +768,10 @@ private struct AboutView: View {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("FlashCards")
-                        .font(.system(size: 30, weight: .bold, design: .rounded))
+                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .foregroundStyle(AppTheme.primaryText)
 
-                    Text("Focused offline study for system design, architecture, and AWS review.")
+                    Text("Offline flash cards for system design, solution architecture, and AWS study.")
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(AppTheme.secondaryText)
                         .lineSpacing(3)
@@ -518,22 +792,22 @@ private struct AboutView: View {
                 )
 
                 AboutSectionCard(
-                    title: "Privacy",
-                    symbolName: "hand.raised.fill",
+                    title: "How It Works",
+                    symbolName: "square.stack.3d.up.fill",
                     rows: [
-                        "No account, sync, ads, or analytics are built into this release.",
-                        "Marked cards, imported decks, and study state stay on the device.",
-                        "Card Assist is grounded from local deck knowledge and does not call a backend in this build."
+                        "Built for short, repeatable review sessions instead of a generic chat experience.",
+                        "Decks load instantly from local bundled data, and you can extend them with your own JSON files.",
+                        "Core study flows stay useful even with no model available."
                     ]
                 )
 
                 AboutSectionCard(
-                    title: "Open Source",
-                    symbolName: "chevron.left.forwardslash.chevron.right",
+                    title: "Privacy & Storage",
+                    symbolName: "hand.raised.fill",
                     rows: [
-                        "Publish the repository, license, and README together with each IPA release.",
-                        "Use GitHub Issues or Discussions as the primary support channel for this project.",
-                        "Attach install notes and checksums to each GitHub release so sideload users can verify what they download."
+                        "No account, sync, ads, analytics, or background service is required in this build.",
+                        "Marked cards, imported decks, imported knowledge, and study state stay on the device.",
+                        "Import and export use local Files access only."
                     ]
                 )
 
@@ -542,22 +816,32 @@ private struct AboutView: View {
                     symbolName: "sparkles",
                     rows: [
                         "Explain, Compare, Quiz, and Feedback are scoped to the current card and deck.",
-                        "The deck knowledge JSON is the source of truth; the generator is only a formatter.",
-                        "Foundation Models and MLX providers are placeholders and are not active in this release."
+                        "Deck knowledge is the source of truth; the generator only formats grounded output.",
+                        "If no local model provider is available, the app falls back to deterministic grounded responses."
                     ]
                 )
 
                 AboutSectionCard(
-                    title: "Content Notice",
+                    title: "Open Source",
+                    symbolName: "chevron.left.forwardslash.chevron.right",
+                    rows: [
+                        "The repository is the primary place for releases, documentation, and issue tracking.",
+                        "Each public IPA release should ship with checksums, release notes, and sample JSON formats.",
+                        "Custom decks and knowledge files are intentionally plain JSON so they can be inspected and versioned."
+                    ]
+                )
+
+                AboutSectionCard(
+                    title: "Content & Sources",
                     symbolName: "book.closed.fill",
                     rows: [
                         "AWS service names are used for educational reference only.",
                         "This app is not affiliated with Amazon Web Services, Apple, or any featured vendor.",
-                        "Avoid claiming official certification, partnership, or endorsement in repository copy or release notes."
+                        "Use official vendor documentation as the final authority for production decisions."
                     ]
                 )
 
-                ReleaseChecklistCard()
+                BuildSummaryCard()
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
@@ -687,24 +971,25 @@ private struct AboutSectionCard: View {
     }
 }
 
-private struct ReleaseChecklistCard: View {
+private struct BuildSummaryCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Before GitHub Release")
+            Text("Good to Know")
                 .font(.system(.headline, design: .rounded).weight(.bold))
                 .foregroundStyle(AppTheme.primaryText)
 
-            Text("This build is technically ready, but these release details should ship with the repository and IPA artifact.")
+            Text("A few practical notes for using this release well.")
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(AppTheme.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: 8) {
-                ChecklistRow(text: "Publish a LICENSE, README, and privacy note in the repository.")
-                ChecklistRow(text: "Attach the IPA, checksum, and release notes to the GitHub release.")
-                ChecklistRow(text: "Keep the release description accurate: offline, local-first, no active hosted AI provider in this build.")
-                ChecklistRow(text: "Use Issues or Discussions for support and document that flow in the README.")
-                ChecklistRow(text: "Avoid vendor logos or wording that implies official AWS, Apple, or Amazon affiliation.")
+                ChecklistRow(text: "Core study, search, marking, and review work fully offline.")
+                ChecklistRow(text: "Import Deck JSON to add a custom deck or update one you already use.")
+                ChecklistRow(text: "Import Knowledge JSON to improve grounded assist for a matching deck.")
+                ChecklistRow(text: "Knowledge files do not create a new deck by themselves.")
+                ChecklistRow(text: "Plain JSON keeps custom decks and knowledge easy to inspect, edit, and version.")
+                ChecklistRow(text: "If deck ids match, imported knowledge and saved review state stay aligned.")
             }
         }
         .padding(20)

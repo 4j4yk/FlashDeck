@@ -1,54 +1,99 @@
 # FlashCards
 
-FlashCards is a small native iOS study app for technical interview prep and architecture review.
+FlashCards is a local-first iOS study app for system design, solution architecture, and AWS review.
 
-It is built with Swift and SwiftUI, ships with local deck content, and keeps review state on-device.
+It is intentionally narrow: fast deck review, grounded card assistance, simple import/export, and no backend dependency in the default build.
 
-## Highlights
+## Why This App Exists
 
-- Native iOS app with fast startup and no backend
-- Preloaded decks for System Design, Solution Architecture, and AWS Services
-- Offline-first study flow with deck-grounded card assist
-- Import and export for custom decks in JSON
-- Sideload-friendly release flow for GitHub releases
+Most flashcard tools optimize for generic study workflows. This app is narrower on purpose.
 
-## Architecture
+The rationale:
 
-The app uses a deliberately small architecture:
+- technical interview prep benefits from repetition, recall, and tradeoff thinking more than from feature-heavy study systems
+- architecture topics are easier to retain when cards stay concise but still include practical tradeoffs
+- AI assistance should help explain a card or compare adjacent concepts, not replace the deck as the source of truth
+- a small native SwiftUI codebase is easier to maintain, audit, and extend as an open-source project
 
-- `Models`
-  - `Deck`, `FlashCard`, `DeckFile`, `CardAssist` request/response types
-- `Data`
-  - bundled seed decks
-- `Knowledge`
-  - local deck knowledge documents and a lightweight retriever
-- `Services`
-  - grounded assist service plus generation provider boundary
-- `Store`
-  - review state persistence
-- `ViewModels`
-  - one app-level view model for deck loading and derived state
-- `Views`
-  - SwiftUI screens and small reusable components
+This project is designed to stay useful on first launch:
 
-Design patterns used:
+- bundled decks ship with the app
+- review state stays local
+- grounded assist works without cloud services
+- custom decks and knowledge can be added with plain JSON
 
-- value types for app data
-- protocol boundary for AI assist providers
-- local-source-of-truth deck knowledge
-- file-backed persistence for mutable data
-- thin views with minimal business logic
+## What Ships Today
 
-See `ARCHITECTURE.md` for a slightly deeper walkthrough.
+- native SwiftUI iPhone/iPad app
+- bundled decks for System Design, Solution Architecture, and AWS Services
+- card-by-card study with tap-to-flip and swipe navigation
+- review marking, marked-only sessions, random sessions, and weak-area placeholder mode
+- offline grounded Card Assist for `Explain`, `Compare`, `Quiz Me`, and `Feedback`
+- JSON import/export for custom decks
+- JSON import/export for deck knowledge used by assist
+- Light, Dark, Reading, and E-Ink style appearance modes
+- GitHub-release-friendly unsigned IPA build flow
+
+## Product Boundaries
+
+- no account, sync, or authentication in the default build
+- no ads, analytics SDKs, or tracking
+- no generic chat interface
+- no bundled large model
+- no cloud inference in the default open-source build
+- no spaced repetition scheduler yet
+
+## Architecture At A Glance
+
+```mermaid
+flowchart TD
+    Seed["Bundled seed decks"] --> VM["AppViewModel"]
+    Review["ReviewStore<br/>UserDefaults"] --> VM
+    ImportedDecks["Imported deck JSON<br/>Application Support"] --> VM
+
+    VM --> Home["Home / Browser / Review views"]
+    VM --> Study["StudyView"]
+
+    Study --> Assist["GroundedCardAssistService"]
+    Assist --> Retriever["KnowledgeRetriever"]
+    Retriever --> Knowledge["KnowledgeStore"]
+
+    BundledKnowledge["Bundled knowledge JSON"] --> Knowledge
+    ImportedKnowledge["Imported knowledge JSON<br/>Application Support"] --> Knowledge
+    Knowledge --> Template["TemplateGenerationProvider"]
+    Knowledge --> Future["Future local providers<br/>Foundation Models / MLX"]
+    Assist --> Cache["CardAssistCache<br/>Application Support"]
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the deeper walkthrough.
+
+## Core Design Decisions
+
+### Local Knowledge Is The Source Of Truth
+
+Card Assist is grounded in local deck knowledge, not generic model memory. The current card and the matching local knowledge documents are the authoritative inputs.
+
+### Small Extension Surface
+
+The app uses plain JSON for decks and knowledge packs. That keeps content portable, reviewable, and easy to version in Git.
+
+### Replaceable Assist Layer
+
+The assist pipeline is built around retrieval plus a generation-provider boundary. The default open-source build uses deterministic templates, while future local model providers can slot in without rewriting the study UI.
+
+### Lightweight Persistence
+
+Small preference-like values stay in `UserDefaults`. Larger mutable payloads, such as imported decks, imported knowledge, and assist cache entries, are stored in `Application Support`.
 
 ## Privacy And AI
 
-- No account, auth, sync, analytics, ads, or backend in the default build
-- Review state, imported decks, and assist cache stay on-device
-- Card Assist is narrow and deck-scoped, not chat
-- Local deck knowledge is the source of truth for assist output
+- no account, auth, sync, analytics, ads, or backend in the default build
+- review state, imported decks, imported knowledge, appearance preferences, walkthrough state, and assist cache stay on-device
+- Card Assist is narrow and card-scoped, not chat
+- imported runtime knowledge applies only to the exact matching `deck_id`
+- bundled knowledge can still provide category fallback for built-in decks
 
-See `PRIVACY.md` and `AI_POLICY.md`.
+See [PRIVACY.md](PRIVACY.md) and [AI_POLICY.md](AI_POLICY.md).
 
 ## Build And Run
 
@@ -61,7 +106,7 @@ xcodebuild \
   -project FlashCards.xcodeproj \
   -scheme FlashCards \
   -configuration Debug \
-  -destination 'generic/platform=iOS Simulator' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   build
 ```
 
@@ -88,31 +133,56 @@ It builds an unsigned device IPA and writes:
 - `release/FlashCards-sideload.ipa`
 - `release/FlashCards-sideload.ipa.sha256`
 
-The IPA is unsigned on purpose so tools such as AltStore Classic, SideStore, or Sideloadly can sign it during sideload install.
+Important:
 
-## Download And Sideload
+- the IPA is for device sideloading only
+- simulator testing uses the built `.app`, not the IPA
 
-See `INSTALL.md`.
+For sideloading steps, see [INSTALL.md](INSTALL.md).
 
-## Repository Policy Files
+## Installable Decks And Community Content
 
-- `LICENSE`
-- `SECURITY.md`
-- `SUPPORT.md`
-- `CONTRIBUTING.md`
-- `CODE_OF_CONDUCT.md`
-- `PRIVACY.md`
-- `AI_POLICY.md`
-- `CRAWLING.md`
-- `CHANGELOG.md`
-- `CITATION.cff`
+This app is intentionally moving toward installable content packs rather than raw file management as the primary discovery flow.
+
+The recommended open-source direction is:
+
+- official bundled decks in this repository
+- plain JSON deck packs attached to GitHub Releases
+- public catalog manifests hosted on GitHub Pages or raw JSON endpoints
+- community-created deck repositories using stable `deck_id` and `card_id` values
+
+What this project should avoid:
+
+- executable plugins
+- opaque binary deck bundles
+- scraping runtimes or source adapters that execute arbitrary code
+
+The right content model for this app is reviewed, portable JSON.
+
+See [ROADMAP.md](ROADMAP.md) for the next steps.
+
+## Repository Guides
+
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [INSTALL.md](INSTALL.md)
+- [ROADMAP.md](ROADMAP.md)
+- [LICENSE](LICENSE)
+- [SECURITY.md](SECURITY.md)
+- [SUPPORT.md](SUPPORT.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [PRIVACY.md](PRIVACY.md)
+- [AI_POLICY.md](AI_POLICY.md)
+- [CRAWLING.md](CRAWLING.md)
+- [CHANGELOG.md](CHANGELOG.md)
+- [CITATION.cff](CITATION.cff)
 
 ## Support
 
-Use GitHub Issues for reproducible bugs and GitHub Discussions for questions or product ideas.
+Use GitHub Issues for reproducible bugs, deck pack problems, and roadmap proposals.
 
-See `SUPPORT.md`.
+See [SUPPORT.md](SUPPORT.md).
 
 ## License
 
-This repository is released under the MIT License. See `LICENSE`.
+This repository is released under the MIT License. See [LICENSE](LICENSE).

@@ -21,6 +21,9 @@ The app stores the following on-device:
 - marked-card IDs
 - last-opened deck ID
 - imported custom decks
+- imported assist knowledge
+- appearance preferences
+- first-run walkthrough state
 - bounded Card Assist cache
 
 These values are used only to make the local study experience work.

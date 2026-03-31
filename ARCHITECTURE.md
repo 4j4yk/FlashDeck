@@ -1,62 +1,180 @@
 # Architecture
 
-## Goals
+## Design Goals
 
-- keep the app small
-- keep state local
-- make the AI layer replaceable
-- avoid overengineering
+- keep startup fast
+- keep the codebase small and readable
+- keep the default build fully useful offline
+- make content portable with plain JSON
+- make the assist layer replaceable without rewriting the UI
 
-## Runtime Structure
+## Runtime Diagram
+
+```mermaid
+flowchart TD
+    subgraph Content["Content sources"]
+        SeedDecks["Bundled seed decks"]
+        BundleKnowledge["Bundled knowledge JSON"]
+        ImportedDecks["Imported deck JSON"]
+        ImportedKnowledge["Imported knowledge JSON"]
+    end
+
+    subgraph Persistence["Local persistence"]
+        Review["ReviewStore<br/>UserDefaults"]
+        Prefs["Appearance + walkthrough<br/>UserDefaults"]
+        DeckStore["CustomDeckStore<br/>Application Support"]
+        KnowledgeStoreFile["CustomKnowledgeStore<br/>Application Support"]
+        AssistCache["CardAssistCache<br/>Application Support"]
+    end
+
+    subgraph App["Runtime"]
+        VM["AppViewModel"]
+        Home["Home / Browser / Review views"]
+        Study["StudyView"]
+        Knowledge["KnowledgeStore"]
+        Retriever["KnowledgeRetriever"]
+        Assist["GroundedCardAssistService"]
+        Provider["TemplateGenerationProvider"]
+        FutureProvider["Future local providers"]
+    end
+
+    SeedDecks --> VM
+    ImportedDecks --> DeckStore --> VM
+    Review --> VM
+
+    BundleKnowledge --> Knowledge
+    ImportedKnowledge --> KnowledgeStoreFile --> Knowledge
+
+    VM --> Home
+    VM --> Study
+
+    Study --> Assist
+    Assist --> Retriever
+    Retriever --> Knowledge
+    Assist --> Provider
+    Assist --> FutureProvider
+    Assist --> AssistCache
+    Prefs --> Home
+    Prefs --> Study
+```
+
+## Layer Breakdown
 
 ### App Shell
 
-`StudyCardsApp.swift` creates the top-level stores and injects them into SwiftUI.
+`StudyCardsApp.swift` creates the top-level stores and injects them into SwiftUI:
 
-### Data Model
+- `ReviewStore`
+- `AppViewModel`
+- `AppearanceStore`
 
-- `Deck` is the deck container used by the UI
-- `FlashCard` is the core study unit
-- `DeckFile` is the import/export schema
-- `KnowledgeDocument` is the local grounded knowledge schema
+The root shell stays small on purpose.
 
-### Persistence
+### Models
 
-- `ReviewStore` persists marked-card IDs
-- `CustomDeckStore` persists imported decks to `Application Support`
-- `CardAssistCache` persists a bounded assist cache to `Application Support`
+Core value types:
 
-### Knowledge And Assist
+- `Deck`
+- `FlashCard`
+- `DeckFile`
+- `KnowledgeDocument`
+- `CardAssistRequest`
+- `CardAssistResponse`
 
-- `KnowledgeStore` loads bundled knowledge JSON and synthesizes fallback knowledge for imported decks
-- `KnowledgeRetriever` uses exact title, aliases, tags, keywords, and related concept lookup
-- `GroundedCardAssistService` coordinates retrieval and generation
-- `TemplateGenerationProvider` keeps the app useful without a model
-- `FoundationModelsGenerationProvider` and `MLXGenerationProvider` are placeholders for future local model integrations
+The import/export DTOs are intentionally simple so users can author or version them by hand.
 
 ### View Model
 
-`AppViewModel` keeps deck loading, import/export helpers, search filtering, and marked counts in one place.
+`AppViewModel` is the single app-level coordinator for:
 
-### UI
+- loading built-in and imported decks
+- search/filter helpers
+- last-opened deck tracking
+- deck export helpers
+- startup recovery notices
 
-SwiftUI views stay thin:
+This keeps the SwiftUI screens thin without introducing extra architecture layers.
 
-- `HomeView` for deck discovery and project/about info
-- `DeckBrowserView` for list and multi-select review marking
-- `StudyView` for card study and assist
-- `MarkedCardsView` for focused review
+### Persistence
 
-## Design Notes
+The app uses two storage styles:
 
-- The app treats bundled deck knowledge as the source of truth.
-- AI assist is a formatting layer over retrieved local context.
-- Search and review state are intentionally simple and deterministic.
-- Mutable user data uses file-backed storage instead of `UserDefaults` blobs where size can grow over time.
+- `UserDefaults`
+  - marked card IDs
+  - last-opened deck ID
+  - appearance mode
+  - first-run walkthrough state
+- `Application Support`
+  - imported decks
+  - imported knowledge
+  - assist cache
+
+The split is deliberate: small preference-like values stay simple, while larger payloads use file-backed storage.
+
+### Knowledge And Assist
+
+`KnowledgeStore` loads:
+
+- bundled knowledge documents for built-in decks
+- imported knowledge documents for exact `deck_id` matches
+- synthesized fallback knowledge from deck cards when no explicit knowledge exists
+
+`KnowledgeRetriever` is intentionally lightweight:
+
+- exact title match
+- alias match
+- tag overlap
+- keyword scoring
+- related-concept lookup
+
+There is no vector database yet. The retriever is the seam where semantic search can be added later.
+
+`GroundedCardAssistService` coordinates:
+
+1. request assembly from the current study card
+2. local knowledge retrieval
+3. generation via a provider boundary
+4. local caching
+
+### Generation Providers
+
+Current provider:
+
+- `TemplateGenerationProvider`
+
+Placeholders for future local inference:
+
+- `FoundationModelsGenerationProvider`
+- `MLXGenerationProvider`
+
+The current open-source build remains useful without any local model installed.
+
+## Study Flow
+
+1. `StudyView` selects the current `FlashCard`
+2. the user flips, swipes, marks, or asks for assist
+3. assist builds a `CardAssistRequest`
+4. `KnowledgeStore` returns the matching local knowledge set
+5. `KnowledgeRetriever` ranks the most relevant documents
+6. a provider formats a grounded response
+7. `CardAssistCache` stores the result for later reuse
 
 ## Extension Points
 
-- add more deck knowledge files
-- add imported knowledge bundles
-- swap in an on-device generation provider
-- replace the review store with a spaced-repetition scheduler later
+- add more bundled deck JSON and knowledge JSON
+- import custom decks and matching knowledge at runtime
+- add a public deck catalog on top of the existing JSON schema
+- plug in a local model provider later
+- swap review logic for a spaced-repetition scheduler without changing deck content formats
+
+## Why This Stays Small
+
+This app deliberately avoids:
+
+- backend synchronization
+- heavyweight persistence frameworks
+- plugin runtimes
+- generic chat architecture
+- multiple nested view models for simple screens
+
+The project is easier to audit and contribute to because the data flow is still direct.

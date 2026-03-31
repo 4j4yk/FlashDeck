@@ -53,6 +53,12 @@ final class ReviewStore: ObservableObject {
         markedIDs.contains(cardID)
     }
 
+    func reset() {
+        guard markedIDs.isEmpty == false || defaults.object(forKey: storageKey) != nil else { return }
+        markedIDs = []
+        defaults.removeObject(forKey: storageKey)
+    }
+
     private func persist() {
         defaults.set(Array(markedIDs).sorted(), forKey: storageKey)
     }

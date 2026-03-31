@@ -150,6 +150,22 @@ actor CardAssistCache {
         persist()
     }
 
+    func clearAll() {
+        cachedResponses = [:]
+
+        guard let url = try? Self.storageURL(
+            fileManager: fileManager,
+            directoryName: directoryName,
+            storageFilename: storageFilename,
+            baseDirectoryURL: baseDirectoryURL
+        ) else {
+            return
+        }
+
+        guard fileManager.fileExists(atPath: url.path) else { return }
+        try? fileManager.removeItem(at: url)
+    }
+
     private func persist() {
         guard let url = try? Self.storageURL(
             fileManager: fileManager,

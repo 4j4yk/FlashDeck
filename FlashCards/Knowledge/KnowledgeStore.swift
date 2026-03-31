@@ -25,26 +25,32 @@ final class KnowledgeStore {
     }
 
     func documents(for request: CardAssistRequest) -> [KnowledgeDocument] {
+        effectiveDocuments(deckID: request.deckID, deckCategory: request.deckCategory, deckCards: request.deckCards)
+    }
+
+    func knowledgeDeckFile(for deckID: String, deckCategory: DeckCategory, deckCards: [FlashCard]) -> KnowledgeDeckFile? {
+        let documents = effectiveDocuments(deckID: deckID, deckCategory: deckCategory, deckCards: deckCards)
+        guard documents.isEmpty == false else { return nil }
+        return KnowledgeDeckFile(deckID: deckID, documents: documents)
+    }
+
+    private func effectiveDocuments(deckID: String, deckCategory: DeckCategory, deckCards: [FlashCard]) -> [KnowledgeDocument] {
         let imported = lock.withLock { importedDocuments }
         let bundled = lock.withLock { bundledDocuments }
 
-        if let runtime = imported[request.deckID], runtime.isEmpty == false {
+        if let runtime = imported[deckID], runtime.isEmpty == false {
             return runtime
         }
 
-        if let runtime = imported[request.deckCategory.rawValue], runtime.isEmpty == false {
-            return runtime
-        }
-
-        if let bundled = bundled[request.deckID], bundled.isEmpty == false {
+        if let bundled = bundled[deckID], bundled.isEmpty == false {
             return bundled
         }
 
-        if let bundled = bundled[request.deckCategory.rawValue], bundled.isEmpty == false {
+        if let bundled = bundled[deckCategory.rawValue], bundled.isEmpty == false {
             return bundled
         }
 
-        return synthesizeDocuments(deckID: request.deckID, cards: request.deckCards)
+        return synthesizeDocuments(deckID: deckID, cards: deckCards)
     }
 
     func importKnowledgeDeckFile(_ deckFile: KnowledgeDeckFile) throws -> KnowledgeDeckFile {
@@ -67,6 +73,15 @@ final class KnowledgeStore {
             let notices = startupNotices
             startupNotices = []
             return notices
+        }
+    }
+
+    func resetImportedKnowledge() {
+        try? customKnowledgeStore.clear()
+
+        lock.withLock {
+            importedDocuments = [:]
+            startupNotices = []
         }
     }
 
@@ -172,6 +187,12 @@ final class CustomKnowledgeStore {
         deckFiles.append(deckFile)
 
         try persist(deckFiles, to: storageURL())
+    }
+
+    func clear() throws {
+        let url = try storageURL()
+        guard fileManager.fileExists(atPath: url.path) else { return }
+        try fileManager.removeItem(at: url)
     }
 
     private struct KnowledgeDeckLoadOutcome {
