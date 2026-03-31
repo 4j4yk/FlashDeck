@@ -122,7 +122,7 @@ xcodebuild \
 
 ## Create A Release IPA
 
-Use the included release script:
+Use the included release script locally:
 
 ```sh
 ./scripts/create-release-artifacts.sh
@@ -139,6 +139,24 @@ Important:
 - simulator testing uses the built `.app`, not the IPA
 
 For sideloading steps, see [INSTALL.md](INSTALL.md).
+
+## GitHub Release Flow
+
+CI already runs on pushes and pull requests. Release packaging is tag-driven.
+
+When a tag like `v1.0.1` is pushed, GitHub Actions will:
+
+1. run the simulator test suite
+2. build the unsigned device IPA
+3. generate the SHA-256 checksum
+4. build a simulator `.app.zip` artifact
+5. publish those files to the matching GitHub Release
+
+Published release assets:
+
+- `FlashCards-sideload.ipa`
+- `FlashCards-sideload.ipa.sha256`
+- `FlashCards-simulator.app.zip`
 
 ## Installable Decks And Community Content
 

@@ -11,3 +11,4 @@ xcuserdata/
 
 release/*.ipa
 release/*.sha256
+release/*.zip

@@ -45,6 +45,7 @@ Official docs:
 - the IPA is for iPhone or iPad device sideloading
 - the IPA is not a simulator artifact
 - simulator testing uses the built `.app` from Xcode or `xcodebuild`
+- GitHub Releases may also include `FlashCards-simulator.app.zip` for contributor testing on Simulator
 
 ## Build It Yourself
 

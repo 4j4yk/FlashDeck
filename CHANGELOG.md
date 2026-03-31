@@ -8,6 +8,7 @@ All notable changes to this project should be documented in this file.
 - limited imported runtime knowledge to exact `deck_id` matches for more predictable grounding
 - expanded tests around persistence and retrieval behavior
 - refreshed public docs, architecture notes, and roadmap guidance for GitHub-based distribution
+- added tag-driven GitHub Release automation for IPA, checksum, and simulator app packaging
 
 ## 1.0.0 - 2026-03-23
 
