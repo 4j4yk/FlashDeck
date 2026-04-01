@@ -10,11 +10,15 @@ struct DeckCardView: View {
             HStack(alignment: .top) {
                 HStack(spacing: 14) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
                             .fill(AppTheme.accentChromeFill)
 
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
                             .stroke(AppTheme.accentChromeStroke, lineWidth: 1)
+
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(.white.opacity(0.08), lineWidth: 1)
+                            .padding(4)
 
                         Image(systemName: deck.symbolName)
                             .font(.system(size: 22, weight: .bold))
@@ -76,11 +80,8 @@ struct DeckCardView: View {
                 .fill(AppTheme.gradient(for: deck.category))
                 .overlay(alignment: .topTrailing) {
                     if AppTheme.usesAmbientGlow {
-                        Circle()
-                            .fill(AppTheme.ambientHighlight)
-                            .frame(width: 180, height: 180)
-                            .blur(radius: 24)
-                            .offset(x: 52, y: -56)
+                        deckSignalOverlay
+                            .offset(x: 28, y: -18)
                     }
                 }
                 .overlay(alignment: .bottomLeading) {
@@ -90,6 +91,29 @@ struct DeckCardView: View {
                             .frame(width: 180, height: 76)
                             .blur(radius: 30)
                             .offset(x: -26, y: 30)
+                    }
+                }
+                .overlay {
+                    if AppTheme.usesAmbientGlow {
+                        VStack {
+                            HStack {
+                                Spacer()
+                                Capsule()
+                                    .fill(.white.opacity(0.14))
+                                    .frame(width: 84, height: 2)
+                                    .offset(x: -22, y: 26)
+                            }
+                            Spacer()
+                            HStack {
+                                Capsule()
+                                    .fill(.white.opacity(0.10))
+                                    .frame(width: 120, height: 1.5)
+                                    .rotationEffect(.degrees(-20))
+                                    .offset(x: -12, y: -8)
+                                Spacer()
+                            }
+                        }
+                        .padding(24)
                     }
                 }
         )
@@ -102,6 +126,23 @@ struct DeckCardView: View {
         .accessibilityLabel("\(deck.title). \(deck.subtitle)")
         .accessibilityValue("\(deck.cards.count) cards. \(markedCount) marked for review.")
         .accessibilityHint(isContinue ? "Double tap to continue this deck." : "Double tap to open this deck.")
+    }
+
+    private var deckSignalOverlay: some View {
+        ZStack {
+            Circle()
+                .stroke(.white.opacity(0.12), lineWidth: 1.2)
+                .frame(width: 150, height: 150)
+
+            Circle()
+                .stroke(.white.opacity(0.07), lineWidth: 1)
+                .frame(width: 112, height: 112)
+
+            Circle()
+                .fill(AppTheme.ambientHighlight)
+                .frame(width: 170, height: 170)
+                .blur(radius: 24)
+        }
     }
 
     private func capsuleLabel(_ text: String) -> some View {

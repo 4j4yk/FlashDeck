@@ -22,8 +22,8 @@ jobs:
       - name: Test simulator app
         run: |
           xcodebuild \
-            -project FlashCards.xcodeproj \
-            -scheme FlashCards \
+            -project FlashDeck.xcodeproj \
+            -scheme FlashDeck \
             -configuration Debug \
             -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16 Pro' \
             test
@@ -38,6 +38,6 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            release/FlashCards-sideload.ipa
-            release/FlashCards-sideload.ipa.sha256
-            release/FlashCards-simulator.app.zip
+            release/FlashDeck-sideload.ipa
+            release/FlashDeck-sideload.ipa.sha256
+            release/FlashDeck-simulator.app.zip

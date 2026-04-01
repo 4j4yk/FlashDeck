@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 @main
-struct StudyCardsApp: App {
+struct FlashDeckApp: App {
     @StateObject private var reviewStore: ReviewStore
     @StateObject private var appViewModel: AppViewModel
     @StateObject private var appearanceStore: AppearanceStore

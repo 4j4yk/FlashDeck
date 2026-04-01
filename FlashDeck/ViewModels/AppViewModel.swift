@@ -23,7 +23,7 @@ final class AppViewModel: ObservableObject {
     private let defaults: UserDefaults
     private let customDeckStore: CustomDeckStore
     private let knowledgeStore: KnowledgeStore
-    private let lastDeckKey = "flashcards.lastOpenedDeckID"
+    private let lastDeckKey = "flashdeck.lastOpenedDeckID"
     private var cancellables: Set<AnyCancellable> = []
 
     init(
@@ -230,7 +230,7 @@ final class CustomDeckStore {
     private let fileManager: FileManager
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
-    private let directoryName = "FlashCards"
+    private let directoryName = "FlashDeck"
     private let storageFilename = "custom-decks.json"
     private let baseDirectoryURL: URL?
 

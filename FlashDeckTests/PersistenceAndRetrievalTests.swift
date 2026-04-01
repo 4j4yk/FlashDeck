@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import FlashCards
+@testable import FlashDeck
 
 final class PersistenceAndRetrievalTests: XCTestCase {
     private var tempDirectoryURL: URL!
@@ -239,7 +239,7 @@ final class PersistenceAndRetrievalTests: XCTestCase {
             ]
         )
 
-        try knowledgeStore.importKnowledgeDeckFile(importedKnowledge)
+        _ = try knowledgeStore.importKnowledgeDeckFile(importedKnowledge)
 
         let customCard = FlashCard(
             id: "custom-lambda-card",
@@ -285,7 +285,7 @@ final class PersistenceAndRetrievalTests: XCTestCase {
     }
 
     private func seed<T: Encodable>(payload: T, storageFilename: String) throws {
-        let directoryURL = tempDirectoryURL.appendingPathComponent("FlashCards", isDirectory: true)
+        let directoryURL = tempDirectoryURL.appendingPathComponent("FlashDeck", isDirectory: true)
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         let data = try JSONEncoder().encode(payload)
         try data.write(to: directoryURL.appendingPathComponent(storageFilename), options: [.atomic])
@@ -293,12 +293,12 @@ final class PersistenceAndRetrievalTests: XCTestCase {
 
     private func storageURL(filename: String) -> URL {
         tempDirectoryURL
-            .appendingPathComponent("FlashCards", isDirectory: true)
+            .appendingPathComponent("FlashDeck", isDirectory: true)
             .appendingPathComponent(filename)
     }
 
     private func backupFilenames(prefix: String) -> [String] {
-        let directoryURL = tempDirectoryURL.appendingPathComponent("FlashCards", isDirectory: true)
+        let directoryURL = tempDirectoryURL.appendingPathComponent("FlashDeck", isDirectory: true)
         let contents = (try? fileManager.contentsOfDirectory(atPath: directoryURL.path)) ?? []
         return contents.filter { $0.hasPrefix(prefix) }
     }

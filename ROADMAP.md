@@ -2,7 +2,7 @@
 
 ## Product Direction
 
-FlashCards should stay small, local-first, and content-driven.
+FlashDeck should stay small, local-first, and content-driven.
 
 The roadmap is intentionally focused on better decks, better grounding, and better install flows rather than on turning the app into a generic study platform.
 

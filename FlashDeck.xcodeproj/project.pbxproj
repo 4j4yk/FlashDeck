@@ -32,7 +32,7 @@
 		86DD49B035255D2E042CC1F7 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DF1B6E7A244E8D061A97A2 /* Haptics.swift */; };
 		8A925C9775CEA1B40666328B /* MarkedCardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933EDE8AC064CB477955D887 /* MarkedCardsView.swift */; };
 		935E9A215039A84DA4C79CD4 /* ReviewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 268183AC46A3E2CD53DD8226 /* ReviewStore.swift */; };
-		93BA02AA376132588A7B13BE /* StudyCardsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF91A4071D61707D47F39094 /* StudyCardsApp.swift */; };
+		93BA02AA376132588A7B13BE /* FlashDeckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF91A4071D61707D47F39094 /* FlashDeckApp.swift */; };
 		9406FC9A338BBB33F9FCB44A /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC839383EAF8E4F841B2282A /* AppViewModel.swift */; };
 		A511E11608688A8B66EFD65C /* AppBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B3736DAE66BB946CC48A6CB /* AppBackground.swift */; };
 		AA64850F6A473184E788B50D /* FlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344F6EA7C01A8E2900BD46B0 /* FlashCard.swift */; };
@@ -50,13 +50,13 @@
 				containerPortal = 68A46F04E7F4C2A2605B7BF8 /* Project object */;
 				proxyType = 1;
 				remoteGlobalIDString = B7E3BFEB0479FB7E1BA4B56E;
-				remoteInfo = FlashCards;
+				remoteInfo = FlashDeck;
 			};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 			A20000000000000000000001 /* PersistenceAndRetrievalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceAndRetrievalTests.swift; sourceTree = "<group>"; };
-			A20000000000000000000002 /* FlashCardsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlashCardsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+			A20000000000000000000002 /* FlashDeckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlashDeckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 			A20000000000000000000003 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 			0ACA79CEA3211B265621166A /* RootTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		0BA02104ED0E9FFD9327BBDB /* FlipFlashCardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FlipFlashCardView.swift; sourceTree = "<group>"; };
@@ -87,10 +87,10 @@
 		DBF9619DCCB491F70FDAC477 /* SeedDecks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SeedDecks.swift; sourceTree = "<group>"; };
 		DC839383EAF8E4F841B2282A /* AppViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		EA99F452BC29DBE0F2A9E052 /* DeckBrowserView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeckBrowserView.swift; sourceTree = "<group>"; };
-		EF91A4071D61707D47F39094 /* StudyCardsApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StudyCardsApp.swift; sourceTree = "<group>"; };
+		EF91A4071D61707D47F39094 /* FlashDeckApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FlashDeckApp.swift; sourceTree = "<group>"; };
 		F14F9DD60F410597D85FEF3B /* StudyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StudyView.swift; sourceTree = "<group>"; };
 		F32E29E3662D492BD08B3BEC /* CardRowView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardRowView.swift; sourceTree = "<group>"; };
-		F6F199B80E21C245AD2F9507 /* FlashCards.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlashCards.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6F199B80E21C245AD2F9507 /* FlashDeck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlashDeck.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC371C28EB9815AE020DC9DC /* AppTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -159,17 +159,17 @@
 				children = (
 					BC59F373D8D1BE8E7E5022AE /* Products */,
 					4229B482B73A1D2349EB5ADB /* Frameworks */,
-					DA6EFCE5BCC191E8D327D257 /* FlashCards */,
-					A30000000000000000000001 /* FlashCardsTests */,
+					DA6EFCE5BCC191E8D327D257 /* FlashDeck */,
+					A30000000000000000000001 /* FlashDeckTests */,
 				);
 				sourceTree = "<group>";
 			};
-			A30000000000000000000001 /* FlashCardsTests */ = {
+			A30000000000000000000001 /* FlashDeckTests */ = {
 				isa = PBXGroup;
 				children = (
 					A20000000000000000000001 /* PersistenceAndRetrievalTests.swift */,
 				);
-				path = FlashCardsTests;
+				path = FlashDeckTests;
 				sourceTree = "<group>";
 			};
 		59B70806DBE31D399A4525FC /* Resources */ = {
@@ -261,13 +261,13 @@
 			BC59F373D8D1BE8E7E5022AE /* Products */ = {
 				isa = PBXGroup;
 				children = (
-					F6F199B80E21C245AD2F9507 /* FlashCards.app */,
-					A20000000000000000000002 /* FlashCardsTests.xctest */,
+					F6F199B80E21C245AD2F9507 /* FlashDeck.app */,
+					A20000000000000000000002 /* FlashDeckTests.xctest */,
 				);
 				name = Products;
 				sourceTree = "<group>";
 		};
-		DA6EFCE5BCC191E8D327D257 /* FlashCards */ = {
+		DA6EFCE5BCC191E8D327D257 /* FlashDeck */ = {
 			isa = PBXGroup;
 			children = (
 				056AF30B065A0719062E43C8 /* Data */,
@@ -275,15 +275,15 @@
 				DE38FA3657E47589704F372D /* Models */,
 				72F0A1B2C3D4E5F60718293A /* Services */,
 				4D4660DAC520941A6925E39C /* Store */,
-				EF91A4071D61707D47F39094 /* StudyCardsApp.swift */,
+				EF91A4071D61707D47F39094 /* FlashDeckApp.swift */,
 				7FC481AF1ABDF84ECB7EA4EE /* Theme */,
 				A6F20BB394CFE54AAEDEE886 /* Utilities */,
 				DBAE5F8DAD25CB2469C72024 /* ViewModels */,
 				853344D1B0B6399CF3B23BA5 /* Views */,
 				59B70806DBE31D399A4525FC /* Resources */,
 			);
-			name = FlashCards;
-			path = FlashCards;
+			name = FlashDeck;
+			path = FlashDeck;
 			sourceTree = "<group>";
 		};
 		DBAE5F8DAD25CB2469C72024 /* ViewModels */ = {
@@ -309,9 +309,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-			A60000000000000000000001 /* FlashCardsTests */ = {
+			A60000000000000000000001 /* FlashDeckTests */ = {
 				isa = PBXNativeTarget;
-				buildConfigurationList = A80000000000000000000001 /* Build configuration list for PBXNativeTarget "FlashCardsTests" */;
+				buildConfigurationList = A80000000000000000000001 /* Build configuration list for PBXNativeTarget "FlashDeckTests" */;
 				buildPhases = (
 					A40000000000000000000003 /* Sources */,
 					A40000000000000000000001 /* Frameworks */,
@@ -322,14 +322,14 @@
 				dependencies = (
 					A50000000000000000000002 /* PBXTargetDependency */,
 				);
-				name = FlashCardsTests;
-				productName = FlashCardsTests;
-				productReference = A20000000000000000000002 /* FlashCardsTests.xctest */;
+				name = FlashDeckTests;
+				productName = FlashDeckTests;
+				productReference = A20000000000000000000002 /* FlashDeckTests.xctest */;
 				productType = "com.apple.product-type.bundle.unit-test";
 			};
-			B7E3BFEB0479FB7E1BA4B56E /* FlashCards */ = {
+			B7E3BFEB0479FB7E1BA4B56E /* FlashDeck */ = {
 				isa = PBXNativeTarget;
-			buildConfigurationList = 1D0DE2FEC42705057466FD13 /* Build configuration list for PBXNativeTarget "FlashCards" */;
+			buildConfigurationList = 1D0DE2FEC42705057466FD13 /* Build configuration list for PBXNativeTarget "FlashDeck" */;
 			buildPhases = (
 				9D8939B17AA8D83A0701EECA /* Sources */,
 				68944E71520942EA99DF6BDB /* Frameworks */,
@@ -339,9 +339,9 @@
 			);
 			dependencies = (
 			);
-			name = FlashCards;
-			productName = FlashCards;
-			productReference = F6F199B80E21C245AD2F9507 /* FlashCards.app */;
+			name = FlashDeck;
+			productName = FlashDeck;
+			productReference = F6F199B80E21C245AD2F9507 /* FlashDeck.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -362,7 +362,7 @@
 						};
 				};
 			};
-			buildConfigurationList = 753F2DACB0CA6684A09EBE09 /* Build configuration list for PBXProject "FlashCards" */;
+			buildConfigurationList = 753F2DACB0CA6684A09EBE09 /* Build configuration list for PBXProject "FlashDeck" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -377,8 +377,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 				targets = (
-					A60000000000000000000001 /* FlashCardsTests */,
-					B7E3BFEB0479FB7E1BA4B56E /* FlashCards */,
+					A60000000000000000000001 /* FlashDeckTests */,
+					B7E3BFEB0479FB7E1BA4B56E /* FlashDeck */,
 				);
 			};
 /* End PBXProject section */
@@ -430,7 +430,7 @@
 				13051152B02155E8281105ED /* Deck.swift in Sources */,
 				AA64850F6A473184E788B50D /* FlashCard.swift in Sources */,
 				935E9A215039A84DA4C79CD4 /* ReviewStore.swift in Sources */,
-				93BA02AA376132588A7B13BE /* StudyCardsApp.swift in Sources */,
+				93BA02AA376132588A7B13BE /* FlashDeckApp.swift in Sources */,
 				7EFFF65686EE6A601ADE3776 /* AppTheme.swift in Sources */,
 				86DD49B035255D2E042CC1F7 /* Haptics.swift in Sources */,
 				9406FC9A338BBB33F9FCB44A /* AppViewModel.swift in Sources */,
@@ -453,7 +453,7 @@
 /* Begin PBXTargetDependency section */
 			A50000000000000000000002 /* PBXTargetDependency */ = {
 				isa = PBXTargetDependency;
-				target = B7E3BFEB0479FB7E1BA4B56E /* FlashCards */;
+				target = B7E3BFEB0479FB7E1BA4B56E /* FlashDeck */;
 				targetProxy = A50000000000000000000001 /* PBXContainerItemProxy */;
 			};
 /* End PBXTargetDependency section */
@@ -467,18 +467,18 @@
 					CURRENT_PROJECT_VERSION = 1;
 					DEVELOPMENT_TEAM = "";
 					GENERATE_INFOPLIST_FILE = YES;
-					INFOPLIST_KEY_CFBundleDisplayName = FlashCardsTests;
+					INFOPLIST_KEY_CFBundleDisplayName = FlashDeckTests;
 					IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 					LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 					MARKETING_VERSION = 1.0;
-					PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashCardsTests;
+					PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashDeckTests;
 					PRODUCT_NAME = "$(TARGET_NAME)";
 					SDKROOT = iphoneos;
 					SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 					SWIFT_VERSION = 5.0;
 					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlashCards.app/FlashCards";
-					TEST_TARGET_NAME = FlashCards;
+					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlashDeck.app/FlashDeck";
+					TEST_TARGET_NAME = FlashDeck;
 				};
 				name = Debug;
 			};
@@ -490,18 +490,18 @@
 					CURRENT_PROJECT_VERSION = 1;
 					DEVELOPMENT_TEAM = "";
 					GENERATE_INFOPLIST_FILE = YES;
-					INFOPLIST_KEY_CFBundleDisplayName = FlashCardsTests;
+					INFOPLIST_KEY_CFBundleDisplayName = FlashDeckTests;
 					IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 					LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 					MARKETING_VERSION = 1.0;
-					PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashCardsTests;
+					PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashDeckTests;
 					PRODUCT_NAME = "$(TARGET_NAME)";
 					SDKROOT = iphoneos;
 					SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 					SWIFT_VERSION = 5.0;
 					TARGETED_DEVICE_FAMILY = "1,2";
-					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlashCards.app/FlashCards";
-					TEST_TARGET_NAME = FlashCards;
+					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlashDeck.app/FlashDeck";
+					TEST_TARGET_NAME = FlashDeck;
 				};
 				name = Release;
 			};
@@ -515,7 +515,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-					INFOPLIST_KEY_CFBundleDisplayName = FlashCards;
+					INFOPLIST_KEY_CFBundleDisplayName = FlashDeck;
 					INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 					INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 					INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -523,7 +523,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashCards;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -602,7 +602,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-					INFOPLIST_KEY_CFBundleDisplayName = FlashCards;
+					INFOPLIST_KEY_CFBundleDisplayName = FlashDeck;
 					INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 					INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 					INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -610,7 +610,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashCards;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hq.FlashDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -688,7 +688,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-			A80000000000000000000001 /* Build configuration list for PBXNativeTarget "FlashCardsTests" */ = {
+			A80000000000000000000001 /* Build configuration list for PBXNativeTarget "FlashDeckTests" */ = {
 				isa = XCConfigurationList;
 				buildConfigurations = (
 					A70000000000000000000001 /* Debug */,
@@ -697,7 +697,7 @@
 				defaultConfigurationIsVisible = 0;
 				defaultConfigurationName = Release;
 			};
-			1D0DE2FEC42705057466FD13 /* Build configuration list for PBXNativeTarget "FlashCards" */ = {
+			1D0DE2FEC42705057466FD13 /* Build configuration list for PBXNativeTarget "FlashDeck" */ = {
 				isa = XCConfigurationList;
 			buildConfigurations = (
 				18433FD41F6D3E23C5976F09 /* Release */,
@@ -706,7 +706,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		753F2DACB0CA6684A09EBE09 /* Build configuration list for PBXProject "FlashCards" */ = {
+		753F2DACB0CA6684A09EBE09 /* Build configuration list for PBXProject "FlashDeck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA31E965B350A31575245E78 /* Debug */,

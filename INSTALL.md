@@ -4,13 +4,13 @@
 
 From the published GitHub release, download:
 
-- `FlashCards-sideload.ipa`
-- `FlashCards-sideload.ipa.sha256`
+- `FlashDeck-sideload.ipa`
+- `FlashDeck-sideload.ipa.sha256`
 
 Verify the checksum locally:
 
 ```sh
-shasum -a 256 FlashCards-sideload.ipa
+shasum -a 256 FlashDeck-sideload.ipa
 ```
 
 Compare the output to the `.sha256` file from the same release.
@@ -29,7 +29,7 @@ General steps:
 
 1. Install one of the supported sideload tools on your Mac or PC.
 2. Add your Apple ID to that tool as required by the tool's normal flow.
-3. Choose `FlashCards-sideload.ipa` as the app to install.
+3. Choose `FlashDeck-sideload.ipa` as the app to install.
 4. Let the tool sign and install the IPA.
 5. On the device, trust the developer profile if prompted.
 6. Enable Developer Mode if the sideload tool requires it.
@@ -45,7 +45,7 @@ Official docs:
 - the IPA is for iPhone or iPad device sideloading
 - the IPA is not a simulator artifact
 - simulator testing uses the built `.app` from Xcode or `xcodebuild`
-- GitHub Releases may also include `FlashCards-simulator.app.zip` for contributor testing on Simulator
+- GitHub Releases may also include `FlashDeck-simulator.app.zip` for contributor testing on Simulator
 
 ## Build It Yourself
 
@@ -57,8 +57,8 @@ Generate a local unsigned release IPA:
 
 This writes:
 
-- `release/FlashCards-sideload.ipa`
-- `release/FlashCards-sideload.ipa.sha256`
+- `release/FlashDeck-sideload.ipa`
+- `release/FlashDeck-sideload.ipa.sha256`
 
 ## Troubleshooting
 

@@ -1,16 +1,25 @@
 import SwiftUI
 
 private enum WalkthroughStorageKeys {
-    static let didShow = "flashcards.didShowWalkthrough.v1"
+    static let didShow = "flashdeck.didShowWalkthrough.v1"
+    static let resetNonce = "flashdeck.appResetNonce"
+}
+
+private enum RootTab: Hashable {
+    case decks
+    case review
 }
 
 struct RootTabView: View {
     @AppStorage(WalkthroughStorageKeys.didShow) private var didShowWalkthrough = false
+    @AppStorage(WalkthroughStorageKeys.resetNonce) private var appResetNonce = 0
     @State private var isShowingWalkthrough = false
+    @State private var selection: RootTab = .decks
 
     var body: some View {
-        TabView {
+        TabView(selection: $selection) {
             HomeView()
+                .tag(RootTab.decks)
                 .tabItem {
                     Label("Decks", systemImage: "rectangle.grid.1x2.fill")
                 }
@@ -18,11 +27,12 @@ struct RootTabView: View {
             NavigationStack {
                 MarkedCardsView()
             }
+                .tag(RootTab.review)
                 .tabItem {
                     Label("Review", systemImage: "bookmark.fill")
                 }
         }
-        .tint(Color(red: 0.21, green: 0.48, blue: 0.93))
+        .tint(AppTheme.accentColor(for: .custom))
         .task {
             guard didShowWalkthrough == false, isShowingWalkthrough == false else { return }
             isShowingWalkthrough = true
@@ -30,6 +40,10 @@ struct RootTabView: View {
         .onChange(of: didShowWalkthrough) { _, newValue in
             guard newValue == false else { return }
             guard isShowingWalkthrough == false else { return }
+            isShowingWalkthrough = true
+        }
+        .onChange(of: appResetNonce) { _, _ in
+            selection = .decks
             isShowingWalkthrough = true
         }
         .fullScreenCover(isPresented: $isShowingWalkthrough) {

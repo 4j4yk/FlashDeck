@@ -86,8 +86,8 @@ final class AppearanceStore: ObservableObject {
     static let shared = AppearanceStore()
 
     private let defaults: UserDefaults
-    private let colorSchemeKey = "flashcards.appearance.colorScheme"
-    private let readingModeKey = "flashcards.appearance.readingMode"
+    private let colorSchemeKey = "flashdeck.appearance.colorScheme"
+    private let readingModeKey = "flashdeck.appearance.readingMode"
 
     @Published private(set) var colorSchemePreference: AppColorSchemePreference
     @Published private(set) var readingMode: AppReadingMode
@@ -148,8 +148,8 @@ enum AppTheme {
 
     static var backgroundTop: Color {
         themedColor(
-            standardLight: UIColor(red: 0.96, green: 0.97, blue: 0.99, alpha: 1),
-            standardDark: UIColor(red: 0.05, green: 0.07, blue: 0.11, alpha: 1),
+            standardLight: UIColor(red: 0.95, green: 0.97, blue: 1.00, alpha: 1),
+            standardDark: UIColor(red: 0.05, green: 0.06, blue: 0.11, alpha: 1),
             readingLight: UIColor(red: 0.95, green: 0.94, blue: 0.90, alpha: 1),
             readingDark: UIColor(red: 0.10, green: 0.10, blue: 0.09, alpha: 1),
             eInkLight: UIColor(red: 0.95, green: 0.94, blue: 0.90, alpha: 1),
@@ -159,8 +159,8 @@ enum AppTheme {
 
     static var backgroundBottom: Color {
         themedColor(
-            standardLight: UIColor(red: 0.90, green: 0.94, blue: 0.98, alpha: 1),
-            standardDark: UIColor(red: 0.09, green: 0.11, blue: 0.16, alpha: 1),
+            standardLight: UIColor(red: 0.88, green: 0.93, blue: 0.98, alpha: 1),
+            standardDark: UIColor(red: 0.08, green: 0.10, blue: 0.17, alpha: 1),
             readingLight: UIColor(red: 0.91, green: 0.89, blue: 0.84, alpha: 1),
             readingDark: UIColor(red: 0.13, green: 0.13, blue: 0.12, alpha: 1),
             eInkLight: UIColor(red: 0.92, green: 0.91, blue: 0.86, alpha: 1),
@@ -361,25 +361,25 @@ enum AppTheme {
         switch deck {
         case .systemDesign:
             return deckGradient(
-                standard: [Color(red: 0.13, green: 0.33, blue: 0.73), Color(red: 0.28, green: 0.62, blue: 0.98)],
+                standard: [Color(red: 0.11, green: 0.24, blue: 0.62), Color(red: 0.29, green: 0.58, blue: 0.95)],
                 reading: [Color(red: 0.31, green: 0.43, blue: 0.61), Color(red: 0.43, green: 0.58, blue: 0.74)],
                 eInk: [Color(red: 0.40, green: 0.40, blue: 0.38), Color(red: 0.56, green: 0.56, blue: 0.53)]
             )
         case .solutionArchitecture:
             return deckGradient(
-                standard: [Color(red: 0.16, green: 0.49, blue: 0.38), Color(red: 0.47, green: 0.79, blue: 0.60)],
+                standard: [Color(red: 0.12, green: 0.38, blue: 0.30), Color(red: 0.40, green: 0.72, blue: 0.58)],
                 reading: [Color(red: 0.29, green: 0.45, blue: 0.35), Color(red: 0.49, green: 0.65, blue: 0.52)],
                 eInk: [Color(red: 0.33, green: 0.33, blue: 0.31), Color(red: 0.48, green: 0.48, blue: 0.45)]
             )
         case .awsServices:
             return deckGradient(
-                standard: [Color(red: 0.96, green: 0.47, blue: 0.12), Color(red: 0.99, green: 0.71, blue: 0.24)],
+                standard: [Color(red: 0.82, green: 0.36, blue: 0.12), Color(red: 0.98, green: 0.66, blue: 0.20)],
                 reading: [Color(red: 0.69, green: 0.49, blue: 0.23), Color(red: 0.82, green: 0.63, blue: 0.34)],
                 eInk: [Color(red: 0.47, green: 0.46, blue: 0.43), Color(red: 0.63, green: 0.62, blue: 0.58)]
             )
         case .custom:
             return deckGradient(
-                standard: [Color(red: 0.34, green: 0.37, blue: 0.49), Color(red: 0.54, green: 0.61, blue: 0.76)],
+                standard: [Color(red: 0.23, green: 0.21, blue: 0.42), Color(red: 0.78, green: 0.34, blue: 0.42)],
                 reading: [Color(red: 0.39, green: 0.40, blue: 0.48), Color(red: 0.54, green: 0.55, blue: 0.66)],
                 eInk: [Color(red: 0.38, green: 0.38, blue: 0.36), Color(red: 0.53, green: 0.53, blue: 0.50)]
             )
@@ -408,7 +408,7 @@ enum AppTheme {
             )
         case .custom:
             return accent(
-                standard: Color(red: 0.55, green: 0.62, blue: 0.80),
+                standard: Color(red: 0.89, green: 0.43, blue: 0.48),
                 reading: Color(red: 0.54, green: 0.55, blue: 0.66),
                 eInk: Color(red: 0.46, green: 0.46, blue: 0.43)
             )

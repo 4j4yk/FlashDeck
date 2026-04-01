@@ -7,7 +7,8 @@ struct HomeView: View {
     @EnvironmentObject private var appearanceStore: AppearanceStore
 
     private let maxImportBytes = 2_000_000
-    private let walkthroughStorageKey = "flashcards.didShowWalkthrough.v1"
+    private let walkthroughStorageKey = "flashdeck.didShowWalkthrough.v1"
+    private let appResetNonceKey = "flashdeck.appResetNonce"
 
     @State private var isImportingDeck = false
     @State private var isImportingKnowledge = false
@@ -118,19 +119,17 @@ struct HomeView: View {
                             .padding(24)
                             .background(
                                 RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [Color(red: 0.21, green: 0.25, blue: 0.35), Color(red: 0.34, green: 0.42, blue: 0.56)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
+                                    .fill(AppTheme.gradient(for: .custom))
                                     .overlay(alignment: .topTrailing) {
                                         if AppTheme.usesAmbientGlow {
                                             Circle()
-                                                .fill(AppTheme.ambientHighlight)
-                                                .frame(width: 150, height: 150)
-                                                .blur(radius: 24)
+                                                .stroke(.white.opacity(0.12), lineWidth: 1.2)
+                                                .frame(width: 132, height: 132)
+                                                .overlay {
+                                                    Circle()
+                                                        .fill(AppTheme.ambientHighlight)
+                                                        .blur(radius: 22)
+                                                }
                                                 .offset(x: 42, y: -42)
                                         }
                                     }
@@ -170,7 +169,7 @@ struct HomeView: View {
                             Button {
                                 isShowingAbout = true
                             } label: {
-                                Label("About FlashCards", systemImage: "info.circle")
+                                Label("About FlashDeck", systemImage: "info.circle")
                             }
                         }
 
@@ -314,16 +313,17 @@ struct HomeView: View {
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("DAILY REVIEW")
-                .font(.system(.caption, design: .rounded).weight(.bold))
+            Text("FLASHDECK")
+                .font(.system(.caption, design: .monospaced).weight(.bold))
+                .tracking(1.6)
                 .foregroundStyle(AppTheme.tertiaryText)
 
-            Text("Architecture mastery with almost no friction.")
+            Text("Fast recall with grounded technical depth.")
                 .font(.system(.largeTitle, design: .rounded).weight(.bold))
                 .foregroundStyle(AppTheme.primaryText)
                 .lineSpacing(2)
 
-            Text("Fast review, clean focus, and enough depth to sharpen real interview and delivery skills.")
+            Text("FlashDeck keeps the interaction honest: quick card review first, then deeper grounded context when you need it.")
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(AppTheme.secondaryText)
                 .lineSpacing(3)
@@ -472,7 +472,9 @@ struct HomeView: View {
         await appViewModel.resetLocalData()
         reviewStore.reset()
         appearanceStore.reset()
-        UserDefaults.standard.removeObject(forKey: walkthroughStorageKey)
+        let defaults = UserDefaults.standard
+        defaults.set(false, forKey: walkthroughStorageKey)
+        defaults.set(defaults.integer(forKey: appResetNonceKey) + 1, forKey: appResetNonceKey)
         alertNotice = nil
         dismissBanner()
     }
@@ -767,11 +769,11 @@ private struct AboutView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("FlashCards")
+                    Text("FlashDeck")
                         .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .foregroundStyle(AppTheme.primaryText)
 
-                    Text("Offline flash cards for system design, solution architecture, and AWS study.")
+                    Text("Offline flash cards for system design, solution architecture, and AWS study. FlashDeck emphasizes quick recall first, with grounded deck knowledge ready when you want more context.")
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(AppTheme.secondaryText)
                         .lineSpacing(3)
@@ -789,6 +791,16 @@ private struct AboutView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
                         .stroke(AppTheme.outlineGradient, lineWidth: 1)
+                )
+
+                AboutSectionCard(
+                    title: "Why FlashDeck",
+                    symbolName: "point.3.connected.trianglepath.dotted",
+                    rows: [
+                        "The name reflects the core interaction directly: fast card-based recall in focused study sessions.",
+                        "Decks stay compact and repeatable, while grounded knowledge adds depth without turning the app into chat.",
+                        "The product stays honest to what it is: a flash-card app first, with technical understanding layered on top."
+                    ]
                 )
 
                 AboutSectionCard(

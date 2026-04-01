@@ -116,7 +116,7 @@ actor CardAssistCache {
     private let fileManager: FileManager
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
-    private let directoryName = "FlashCards"
+    private let directoryName = "FlashDeck"
     private let storageFilename = "card-assist-cache.json"
     private let maxEntries = 120
     private let baseDirectoryURL: URL?

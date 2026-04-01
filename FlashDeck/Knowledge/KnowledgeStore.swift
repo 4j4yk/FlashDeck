@@ -165,7 +165,7 @@ final class CustomKnowledgeStore {
     private let fileManager: FileManager
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
-    private let directoryName = "FlashCards"
+    private let directoryName = "FlashDeck"
     private let storageFilename = "custom-knowledge.json"
     private let baseDirectoryURL: URL?
 

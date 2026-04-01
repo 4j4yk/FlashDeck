@@ -12,8 +12,8 @@ Build in Xcode or from the command line:
 
 ```sh
 xcodebuild \
-  -project FlashCards.xcodeproj \
-  -scheme FlashCards \
+  -project FlashDeck.xcodeproj \
+  -scheme FlashDeck \
   -configuration Debug \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   build
@@ -23,8 +23,8 @@ Run tests:
 
 ```sh
 xcodebuild \
-  -project FlashCards.xcodeproj \
-  -scheme FlashCards \
+  -project FlashDeck.xcodeproj \
+  -scheme FlashDeck \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```

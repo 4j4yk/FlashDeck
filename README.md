@@ -1,8 +1,16 @@
-# FlashCards
+# FlashDeck
 
-FlashCards is a local-first iOS study app for system design, solution architecture, and AWS review.
+FlashDeck is a local-first iOS study app for system design, solution architecture, and AWS review.
 
 It is intentionally narrow: fast deck review, grounded card assistance, simple import/export, and no backend dependency in the default build.
+
+The name reflects the core interaction directly: quick card-based recall first, with enough grounded depth to support stronger technical understanding.
+
+## Demo
+
+Home screen on the current simulator build:
+
+![FlashDeck home screen](docs/demo/flashdeck-home.png)
 
 ## Why This App Exists
 
@@ -97,14 +105,14 @@ See [PRIVACY.md](PRIVACY.md) and [AI_POLICY.md](AI_POLICY.md).
 
 ## Build And Run
 
-Open `FlashCards.xcodeproj` in Xcode and run the `FlashCards` scheme on an iPhone simulator or device.
+Open `FlashDeck.xcodeproj` in Xcode and run the `FlashDeck` scheme on an iPhone simulator or device.
 
 Command line simulator build:
 
 ```sh
 xcodebuild \
-  -project FlashCards.xcodeproj \
-  -scheme FlashCards \
+  -project FlashDeck.xcodeproj \
+  -scheme FlashDeck \
   -configuration Debug \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   build
@@ -114,8 +122,8 @@ Command line test run:
 
 ```sh
 xcodebuild \
-  -project FlashCards.xcodeproj \
-  -scheme FlashCards \
+  -project FlashDeck.xcodeproj \
+  -scheme FlashDeck \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
@@ -130,8 +138,8 @@ Use the included release script locally:
 
 It builds an unsigned device IPA and writes:
 
-- `release/FlashCards-sideload.ipa`
-- `release/FlashCards-sideload.ipa.sha256`
+- `release/FlashDeck-sideload.ipa`
+- `release/FlashDeck-sideload.ipa.sha256`
 
 Important:
 
@@ -154,9 +162,9 @@ When a tag like `v1.0.1` is pushed, GitHub Actions will:
 
 Published release assets:
 
-- `FlashCards-sideload.ipa`
-- `FlashCards-sideload.ipa.sha256`
-- `FlashCards-simulator.app.zip`
+- `FlashDeck-sideload.ipa`
+- `FlashDeck-sideload.ipa.sha256`
+- `FlashDeck-simulator.app.zip`
 
 ## Installable Decks And Community Content
 

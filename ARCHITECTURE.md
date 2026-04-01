@@ -62,7 +62,7 @@ flowchart TD
 
 ### App Shell
 
-`StudyCardsApp.swift` creates the top-level stores and injects them into SwiftUI:
+`FlashDeckApp.swift` creates the top-level stores and injects them into SwiftUI:
 
 - `ReviewStore`
 - `AppViewModel`

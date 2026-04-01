@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B7E3BFEB0479FB7E1BA4B56E"
-               BuildableName = "FlashCards.app"
-               BlueprintName = "FlashCards"
-               ReferencedContainer = "container:FlashCards.xcodeproj">
+               BuildableName = "FlashDeck.app"
+               BlueprintName = "FlashDeck"
+               ReferencedContainer = "container:FlashDeck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -30,9 +30,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A60000000000000000000001"
-               BuildableName = "FlashCardsTests.xctest"
-               BlueprintName = "FlashCardsTests"
-               ReferencedContainer = "container:FlashCards.xcodeproj">
+               BuildableName = "FlashDeckTests.xctest"
+               BlueprintName = "FlashDeckTests"
+               ReferencedContainer = "container:FlashDeck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -48,9 +48,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A60000000000000000000001"
-               BuildableName = "FlashCardsTests.xctest"
-               BlueprintName = "FlashCardsTests"
-               ReferencedContainer = "container:FlashCards.xcodeproj">
+               BuildableName = "FlashDeckTests.xctest"
+               BlueprintName = "FlashDeckTests"
+               ReferencedContainer = "container:FlashDeck.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B7E3BFEB0479FB7E1BA4B56E"
-            BuildableName = "FlashCards.app"
-            BlueprintName = "FlashCards"
-            ReferencedContainer = "container:FlashCards.xcodeproj">
+            BuildableName = "FlashDeck.app"
+            BlueprintName = "FlashDeck"
+            ReferencedContainer = "container:FlashDeck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -87,9 +87,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B7E3BFEB0479FB7E1BA4B56E"
-            BuildableName = "FlashCards.app"
-            BlueprintName = "FlashCards"
-            ReferencedContainer = "container:FlashCards.xcodeproj">
+            BuildableName = "FlashDeck.app"
+            BlueprintName = "FlashDeck"
+            ReferencedContainer = "container:FlashDeck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

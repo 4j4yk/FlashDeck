@@ -2,18 +2,15 @@
 
 All notable changes to this project should be documented in this file.
 
-## Unreleased
-
-- tightened JSON import handling with enforced file-size limits even when provider metadata is missing
-- limited imported runtime knowledge to exact `deck_id` matches for more predictable grounding
-- expanded tests around persistence and retrieval behavior
-- refreshed public docs, architecture notes, and roadmap guidance for GitHub-based distribution
-- added tag-driven GitHub Release automation for IPA, checksum, and simulator app packaging
-
-## 1.0.0 - 2026-03-23
+## 1.0.0 - 2026-03-31
 
 - Initial public open-source release
 - Native SwiftUI flashcard study app with local decks
 - Offline review marking and custom deck import/export
 - Grounded local Card Assist architecture with template fallback
 - GitHub-release-oriented install and policy documentation
+- Public-facing FlashDeck branding and release asset naming
+- Hardened JSON import handling with enforced file-size limits
+- Exact `deck_id` matching for imported runtime knowledge
+- Persistence and retrieval test coverage
+- Tag-driven GitHub Release automation for IPA, checksum, and simulator packaging

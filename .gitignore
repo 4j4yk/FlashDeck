@@ -5,9 +5,9 @@
 .derivedData-*/
 *.xcuserstate
 xcuserdata/
+*.xcresult
 
 .simulator-*.png
-.simulator-check*.png
 
 release/*.ipa
 release/*.sha256

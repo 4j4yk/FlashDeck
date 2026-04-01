@@ -2,7 +2,7 @@
 
 ## Scope
 
-FlashCards includes a narrow, card-scoped assist layer.
+FlashDeck includes a narrow, card-scoped assist layer.
 
 It is not a general chatbot.
 

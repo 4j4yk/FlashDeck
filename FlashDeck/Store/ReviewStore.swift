@@ -4,7 +4,7 @@ final class ReviewStore: ObservableObject {
     @Published private(set) var markedIDs: Set<String>
 
     private let defaults: UserDefaults
-    private let storageKey = "flashcards.review.markedIDs"
+    private let storageKey = "flashdeck.review.markedIDs"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults

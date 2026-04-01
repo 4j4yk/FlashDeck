@@ -12,9 +12,9 @@ Preferred path:
 2. Do not post exploit details, secrets, or proof-of-concept payloads in a public issue.
 3. Public GitHub Issues are for non-sensitive bugs only.
 
-## Release Requirement
+## Repository Setting Recommendation
 
-Public releases should not be published until GitHub private vulnerability reporting is enabled for the repository.
+Public releases should enable GitHub private vulnerability reporting when the repository settings allow it.
 
 ## Response Goals
 

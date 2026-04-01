@@ -2,7 +2,7 @@
 
 ## Summary
 
-FlashCards is local-first in the default build.
+FlashDeck is local-first in the default build.
 
 The app does not include:
 

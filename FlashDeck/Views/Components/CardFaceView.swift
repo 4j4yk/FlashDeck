@@ -92,11 +92,8 @@ struct CardFaceView: View {
                 .fill(AppTheme.elevatedSurfaceGradient)
                 .overlay(alignment: .topTrailing) {
                     if AppTheme.usesAmbientGlow {
-                        Circle()
-                            .fill(AppTheme.accentColor(for: deckID).opacity(isFront ? 0.10 : 0.16))
-                            .frame(width: 200, height: 200)
-                            .blur(radius: 58)
-                            .offset(x: 58, y: -52)
+                        cardSignalCluster
+                            .offset(x: 36, y: -24)
                     }
                 }
                 .overlay(alignment: .bottomLeading) {
@@ -108,12 +105,38 @@ struct CardFaceView: View {
                             .offset(x: -24, y: 48)
                     }
                 }
+                .overlay(alignment: .topLeading) {
+                    if AppTheme.usesAmbientGlow {
+                        Capsule()
+                            .fill(AppTheme.accentColor(for: deckID).opacity(0.18))
+                            .frame(width: 82, height: 3)
+                            .padding(.top, 22)
+                            .padding(.leading, 26)
+                    }
+                }
         )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.cornerRadius, style: .continuous)
                 .stroke(AppTheme.outlineGradient, lineWidth: 1)
         )
         .shadow(color: AppTheme.deepShadowColor.opacity(0.62), radius: 28, x: 0, y: 18)
+    }
+
+    private var cardSignalCluster: some View {
+        ZStack {
+            Circle()
+                .stroke(AppTheme.accentColor(for: deckID).opacity(isFront ? 0.16 : 0.24), lineWidth: 1.1)
+                .frame(width: 132, height: 132)
+
+            Circle()
+                .stroke(AppTheme.accentColor(for: deckID).opacity(isFront ? 0.08 : 0.12), lineWidth: 1)
+                .frame(width: 92, height: 92)
+
+            Circle()
+                .fill(AppTheme.accentColor(for: deckID).opacity(isFront ? 0.10 : 0.14))
+                .frame(width: 162, height: 162)
+                .blur(radius: 34)
+        }
     }
 
     private func statusIcon(symbolName: String, isAccent: Bool) -> some View {
